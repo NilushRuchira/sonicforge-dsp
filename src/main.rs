@@ -293,6 +293,14 @@ fn main() {
                                 }
                             }
                         }
+                        "set_capture_device" => {
+                            if let Some(dev_name) = v.get("device_name").and_then(|d| d.as_str()) {
+                                drop(router);
+                                drop(eng);
+                                let mut eng_mut = engine_ipc.lock();
+                                eng_mut.switch_capture_device(dev_name);
+                            }
+                        }
                         "set_matrix_crosspoint" => {
                             if let (Some(s), Some(c), Some(conn)) = (
                                 v.get("source").and_then(|s| s.as_u64()),

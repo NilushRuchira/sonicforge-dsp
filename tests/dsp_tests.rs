@@ -146,6 +146,40 @@ fn test_brickwall_limiter_ceiling() {
 }
 
 #[test]
+fn test_eq_slider_audio_change() {
+    let mut router = AudioMatrixRouter::new(48000.0);
+    let sr = 48000.0_f32;
+    let freq = 63.0_f32;
+
+    // 1. Process at 0 dB (Flat)
+    let mut sum_flat = 0.0_f32;
+    for i in 0..15000 {
+        let s = (2.0 * std::f32::consts::PI * freq * i as f32 / sr).sin() * 0.05;
+        let (_, _, outs) = router.process_frame(s, s);
+        if i >= 10000 {
+            sum_flat += outs[0][0].powi(2);
+        }
+    }
+    let rms_flat = (sum_flat / 5000.0).sqrt();
+
+    // 2. Boost 63 Hz band (index 1) to +12 dB
+    router.master_eq.set_band_gain(1, 12.0);
+
+    let mut sum_boosted = 0.0_f32;
+    for i in 0..15000 {
+        let s = (2.0 * std::f32::consts::PI * freq * i as f32 / sr).sin() * 0.05;
+        let (_, _, outs) = router.process_frame(s, s);
+        if i >= 10000 {
+            sum_boosted += outs[0][0].powi(2);
+        }
+    }
+    let rms_boosted = (sum_boosted / 5000.0).sqrt();
+
+    println!("RMS Flat: {}, RMS Boosted: {}", rms_flat, rms_boosted);
+    assert!(rms_boosted > rms_flat * 2.0, "Boosted RMS ({}) must be significantly louder than Flat RMS ({})", rms_boosted, rms_flat);
+}
+
+#[test]
 fn test_matrix_router_dispatch() {
     let mut router = AudioMatrixRouter::new(48000.0);
     assert_eq!(router.channels.len(), 3);

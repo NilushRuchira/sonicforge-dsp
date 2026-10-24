@@ -47,6 +47,7 @@ pub struct AudioEngine {
     pub router: Arc<Mutex<AudioMatrixRouter>>,
     producer: Arc<Mutex<Producer<f32>>>,
     consumer: Option<Consumer<f32>>,
+    capture_prod: Arc<Mutex<Producer<f32>>>,
     devices: Vec<AudioDeviceInfo>,
     pub test_mode: Arc<AtomicBool>,
     pub output_stream: Option<cpal::Stream>,
@@ -70,6 +71,10 @@ impl AudioEngine {
         let mut output_stream = None;
         let mut input_stream = None;
 
+        // Lock-free ring buffer for capturing input audio frames
+        let (loopback_prod, mut loopback_cons) = RingBuffer::<f32>::new(65536);
+        let capture_prod = Arc::new(Mutex::new(loopback_prod));
+
         // Attempt to connect to real hardware output device
         if let Some(out_dev) = host.default_output_device() {
             if let Ok(config) = out_dev.default_output_config() {
@@ -79,32 +84,34 @@ impl AudioEngine {
 
                 sample_rate.store(stream_config.sample_rate, Ordering::Relaxed);
 
-                // Lock-free ring buffer for capturing desktop loopback frames
-                let (mut loopback_prod, mut loopback_cons) = RingBuffer::<f32>::new(65536);
+                // Prefer default input device (e.g. Line 1 Virtual Audio Cable), fallback to render loopback
+                let cap_dev = host.default_input_device().or_else(|| host.default_output_device());
+                if let Some(dev) = cap_dev {
+                    let cap_config = dev.default_input_config().or_else(|_| dev.default_output_config());
+                    if let Ok(config) = cap_config {
+                        let in_stream_config: cpal::StreamConfig = config.into();
+                        let in_ch = in_stream_config.channels as usize;
+                        let capture_prod_in = capture_prod.clone();
+                        let in_res = dev.build_input_stream(
+                            in_stream_config,
+                            move |data: &[f32], _| {
+                                let mut prod = capture_prod_in.lock();
+                                for chunk in data.chunks(in_ch) {
+                                    let l = chunk[0];
+                                    let r = if chunk.len() > 1 { chunk[1] } else { l };
+                                    let _ = prod.push(l);
+                                    let _ = prod.push(r);
+                                }
+                            },
+                            |err| eprintln!("[Audio Core] Capture warning: {}", err),
+                            None,
+                        );
 
-                // Attempt to bind WASAPI Loopback stream to capture PC audio
-                if let Ok(in_config) = out_dev.default_output_config() {
-                    let in_stream_config: cpal::StreamConfig = in_config.into();
-                    let in_ch = in_stream_config.channels as usize;
-
-                    let in_res = out_dev.build_input_stream(
-                        in_stream_config,
-                        move |data: &[f32], _| {
-                            for chunk in data.chunks(in_ch) {
-                                let l = chunk[0];
-                                let r = if chunk.len() > 1 { chunk[1] } else { l };
-                                let _ = loopback_prod.push(l);
-                                let _ = loopback_prod.push(r);
+                        if let Ok(st) = in_res {
+                            if st.play().is_ok() {
+                                input_stream = Some(st);
+                                println!("[Audio Core] Input Audio Capture Stream ACTIVE");
                             }
-                        },
-                        |err| eprintln!("[Audio Core] Loopback capture warning: {}", err),
-                        None,
-                    );
-
-                    if let Ok(st) = in_res {
-                        if st.play().is_ok() {
-                            input_stream = Some(st);
-                            println!("[Audio Core] WASAPI Loopback Capture Stream ACTIVE");
                         }
                     }
                 }
@@ -135,8 +142,10 @@ impl AudioEngine {
                                 in_r = loopback_cons.pop().unwrap_or(l);
                             }
 
-                            // If test synth is active, synthesize high-fidelity musical audio track
-                            if is_synth {
+                            // If input audio is received from Virtual Cable / Windows, use it.
+                            // If silent or no external audio is playing and synth is enabled, play synth preview.
+                            let has_input = in_l.abs() > 1e-4 || in_r.abs() > 1e-4;
+                            if is_synth && !has_input {
                                 beat_phase += 1.0 / (sr * 0.5);
                                 let kick = ((beat_phase * std::f32::consts::PI).sin().powi(8)).max(0.0);
                                 let bass_env = 0.3 + 0.4 * kick;
@@ -151,18 +160,15 @@ impl AudioEngine {
                                 if phase_mid > 2.0 * std::f32::consts::PI { phase_mid -= 2.0 * std::f32::consts::PI; }
                                 if phase_high > 2.0 * std::f32::consts::PI { phase_high -= 2.0 * std::f32::consts::PI; }
 
-                                let synth_l = (phase_sub.sin() * 0.45 * bass_env
+                                in_l = (phase_sub.sin() * 0.45 * bass_env
                                     + phase_bass.sin() * 0.25
                                     + phase_mid.sin() * 0.20
                                     + phase_high.sin() * 0.08) * 0.45;
 
-                                let synth_r = (phase_sub.cos() * 0.45 * bass_env
+                                in_r = (phase_sub.cos() * 0.45 * bass_env
                                     + (phase_bass + 0.2).sin() * 0.25
                                     + (phase_mid + 0.4).sin() * 0.20
                                     + (phase_high + 0.6).sin() * 0.08) * 0.45;
-
-                                in_l = synth_l;
-                                in_r = synth_r;
                             }
 
                             // Real-Time DSP Audio Processing:
@@ -230,10 +236,58 @@ impl AudioEngine {
             router,
             producer,
             consumer: Some(consumer),
+            capture_prod,
             devices,
             test_mode,
             output_stream,
             input_stream,
+        }
+    }
+
+    /// Dynamically switch audio capture device (e.g. Line 1 Virtual Audio Cable or Microphone)
+    pub fn switch_capture_device(&mut self, device_name: &str) {
+        let host = cpal::default_host();
+        let target_dev = if let Ok(devices) = host.input_devices() {
+            devices.into_iter().find(|d| d.description().map(|desc| desc.name() == device_name).unwrap_or(false))
+        } else {
+            None
+        }.or_else(|| {
+            if let Ok(devices) = host.output_devices() {
+                devices.into_iter().find(|d| d.description().map(|desc| desc.name() == device_name).unwrap_or(false))
+            } else {
+                None
+            }
+        });
+
+        if let Some(dev) = target_dev {
+            let cap_config = dev.default_input_config().or_else(|_| dev.default_output_config());
+            if let Ok(config) = cap_config {
+                let in_stream_config: cpal::StreamConfig = config.into();
+                let in_ch = in_stream_config.channels as usize;
+                let capture_prod_clone = self.capture_prod.clone();
+
+                let in_res = dev.build_input_stream(
+                    in_stream_config,
+                    move |data: &[f32], _| {
+                        let mut prod = capture_prod_clone.lock();
+                        for chunk in data.chunks(in_ch) {
+                            let l = chunk[0];
+                            let r = if chunk.len() > 1 { chunk[1] } else { l };
+                            let _ = prod.push(l);
+                            let _ = prod.push(r);
+                        }
+                    },
+                    |e| eprintln!("[Audio Core] Capture stream error: {}", e),
+                    None,
+                );
+
+                if let Ok(st) = in_res {
+                    if st.play().is_ok() {
+                        self.input_stream = Some(st);
+                        println!("[Audio Core] Switched Input Capture to: {}", device_name);
+                    }
+                }
+            }
         }
     }
 
@@ -300,7 +354,8 @@ impl AudioEngine {
                                             in_r = loopback_cons.pop().unwrap_or(l);
                                         }
 
-                                        if is_synth {
+                                        let has_input = in_l.abs() > 1e-4 || in_r.abs() > 1e-4;
+                                        if is_synth && !has_input {
                                             beat_phase += 1.0 / (sr * 0.5);
                                             let kick = ((beat_phase * std::f32::consts::PI).sin().powi(8)).max(0.0);
                                             let bass_env = 0.3 + 0.4 * kick;
@@ -315,18 +370,15 @@ impl AudioEngine {
                                             if phase_mid > 2.0 * std::f32::consts::PI { phase_mid -= 2.0 * std::f32::consts::PI; }
                                             if phase_high > 2.0 * std::f32::consts::PI { phase_high -= 2.0 * std::f32::consts::PI; }
 
-                                            let synth_l = (phase_sub.sin() * 0.45 * bass_env
+                                            in_l = (phase_sub.sin() * 0.45 * bass_env
                                                 + phase_bass.sin() * 0.25
                                                 + phase_mid.sin() * 0.20
                                                 + phase_high.sin() * 0.08) * 0.45;
 
-                                            let synth_r = (phase_sub.cos() * 0.45 * bass_env
+                                            in_r = (phase_sub.cos() * 0.45 * bass_env
                                                 + (phase_bass + 0.2).sin() * 0.25
                                                 + (phase_mid + 0.4).sin() * 0.20
                                                 + (phase_high + 0.6).sin() * 0.08) * 0.45;
-
-                                            in_l = synth_l;
-                                            in_r = synth_r;
                                         }
 
                                         let (sum_l, sum_r, outs) = r.process_frame(in_l, in_r);
