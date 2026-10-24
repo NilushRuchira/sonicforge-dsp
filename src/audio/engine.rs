@@ -17,6 +17,7 @@ pub struct AudioDeviceInfo {
     pub name: String,
     pub is_default: bool,
     pub is_input: bool,
+    pub is_bluetooth: bool,
     pub sample_rate: u32,
     pub channels: u16,
 }
@@ -103,6 +104,17 @@ impl AudioEngine {
             for device in outputs {
                 if let Ok(desc) = device.description() {
                     let name = desc.name().to_string();
+                    let name_lower = name.to_lowercase();
+                    let is_bluetooth = name_lower.contains("bluetooth")
+                        || name_lower.contains("hands-free")
+                        || name_lower.contains("handsfree")
+                        || name_lower.contains("tronsmart")
+                        || name_lower.contains("airpod")
+                        || name_lower.contains("buds")
+                        || name_lower.contains("wireless")
+                        || name_lower.contains("bose")
+                        || name_lower.contains("sony");
+
                     let is_default = default_output.as_ref() == Some(&name);
                     let (sr, ch) = device.default_output_config()
                         .map(|c| (c.sample_rate(), c.channels()))
@@ -112,6 +124,7 @@ impl AudioEngine {
                         name,
                         is_default,
                         is_input: false,
+                        is_bluetooth,
                         sample_rate: sr,
                         channels: ch,
                     });
@@ -123,6 +136,17 @@ impl AudioEngine {
             for device in inputs {
                 if let Ok(desc) = device.description() {
                     let name = desc.name().to_string();
+                    let name_lower = name.to_lowercase();
+                    let is_bluetooth = name_lower.contains("bluetooth")
+                        || name_lower.contains("hands-free")
+                        || name_lower.contains("handsfree")
+                        || name_lower.contains("tronsmart")
+                        || name_lower.contains("airpod")
+                        || name_lower.contains("buds")
+                        || name_lower.contains("wireless")
+                        || name_lower.contains("bose")
+                        || name_lower.contains("sony");
+
                     let is_default = default_input.as_ref() == Some(&name);
                     let (sr, ch) = device.default_input_config()
                         .map(|c| (c.sample_rate(), c.channels()))
@@ -132,6 +156,7 @@ impl AudioEngine {
                         name,
                         is_default,
                         is_input: true,
+                        is_bluetooth,
                         sample_rate: sr,
                         channels: ch,
                     });
@@ -145,6 +170,7 @@ impl AudioEngine {
                 name: "Studio Monitors (Focusrite Scarlett 2i2 USB)".to_string(),
                 is_default: true,
                 is_input: false,
+                is_bluetooth: false,
                 sample_rate: 48000,
                 channels: 2,
             });
@@ -152,6 +178,7 @@ impl AudioEngine {
                 name: "Realtek High Definition Audio (Speakers)".to_string(),
                 is_default: false,
                 is_input: false,
+                is_bluetooth: false,
                 sample_rate: 48000,
                 channels: 2,
             });
@@ -159,6 +186,7 @@ impl AudioEngine {
                 name: "VB-Audio Virtual Cable (Virtual Output)".to_string(),
                 is_default: false,
                 is_input: false,
+                is_bluetooth: false,
                 sample_rate: 48000,
                 channels: 2,
             });
@@ -166,6 +194,7 @@ impl AudioEngine {
                 name: "Windows WASAPI System Loopback (Capture)".to_string(),
                 is_default: true,
                 is_input: true,
+                is_bluetooth: false,
                 sample_rate: 48000,
                 channels: 2,
             });
@@ -175,6 +204,11 @@ impl AudioEngine {
     }
 
     pub fn get_devices(&self) -> Vec<AudioDeviceInfo> {
+        self.devices.clone()
+    }
+
+    pub fn refresh_devices(&mut self) -> Vec<AudioDeviceInfo> {
+        self.devices = Self::enumerate_devices();
         self.devices.clone()
     }
 

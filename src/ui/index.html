@@ -106,10 +106,14 @@
         <span class="material-symbols-outlined text-[16px] text-primary mr-2">sensors</span>
         <select id="headerCaptureSelect" class="bg-transparent font-mono text-xs text-on-surface outline-none cursor-pointer pr-4" onchange="onCaptureNodeChanged(this.value)">
           <option value="loopback" class="bg-surface-container-high text-on-surface" selected>Windows WASAPI Loopback</option>
-          <option value="virtual" class="bg-surface-container-high text-on-surface">Virtual Audio Cable In</option>
-          <option value="mic" class="bg-surface-container-high text-on-surface">Microphone / Line In</option>
         </select>
       </div>
+
+      <!-- Rescan Audio & Bluetooth Devices -->
+      <button onclick="rescanAudioDevices()" title="Rescan Bluetooth & WASAPI Devices" class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-surface-container border border-surface-container-high hover:border-primary/50 text-on-surface-variant hover:text-primary transition-all text-xs font-mono">
+        <span class="material-symbols-outlined text-[16px] text-primary" id="rescanIcon">bluetooth_searching</span>
+        <span class="hidden md:inline">Rescan Audio</span>
+      </button>
 
       <!-- DSP Master Sync Toggle -->
       <button id="masterDspSyncBtn" onclick="toggleDspSync()" class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-surface-container border border-surface-container-high hover:border-primary/50 text-on-surface transition-all">
@@ -245,9 +249,19 @@
                 </div>
                 <span class="px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary font-mono text-xs font-semibold">OUT 1-2</span>
               </div>
-              <div class="flex items-center justify-between text-on-surface-variant font-mono text-xs mb-3">
-                <span>Focusrite Scarlett 2i2 USB</span>
-                <span class="text-secondary font-medium">48kHz • 24-bit</span>
+              <div class="flex flex-col gap-1.5 mb-3">
+                <div class="flex items-center justify-between text-on-surface-variant font-mono text-xs">
+                  <span class="text-[10px] text-outline uppercase tracking-wider flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px] text-primary">device_hub</span> Target Endpoint
+                  </span>
+                  <span class="text-secondary font-medium" id="channelFormat-0">48kHz • 24-bit</span>
+                </div>
+                <div class="relative flex items-center bg-surface-container-highest/60 rounded border border-white/10 px-2 py-1">
+                  <span id="channelBtIcon-0" class="material-symbols-outlined text-[16px] text-primary mr-1.5 hidden">bluetooth</span>
+                  <select id="channelDeviceSelect-0" class="bg-transparent font-mono text-xs text-on-surface outline-none w-full cursor-pointer truncate" onchange="onChannelDeviceSelect(0, this.value)">
+                    <option value="Headphones (Tronsmart T7)">🎧 [BLUETOOTH] Headphones (Tronsmart T7) ★</option>
+                  </select>
+                </div>
               </div>
               <div class="flex items-center justify-between px-3 py-1.5 bg-surface-container rounded-md border border-white/5 mb-4">
                 <span class="text-[10px] font-mono text-outline uppercase">Individual DSP</span>
@@ -343,9 +357,19 @@
                 </div>
                 <span class="px-2 py-0.5 rounded bg-secondary/10 border border-secondary/20 text-secondary font-mono text-xs font-semibold">OUT 3-4</span>
               </div>
-              <div class="flex items-center justify-between text-on-surface-variant font-mono text-xs mb-3">
-                <span>Realtek High Definition Audio</span>
-                <span class="text-secondary font-medium">48kHz • 24-bit</span>
+              <div class="flex flex-col gap-1.5 mb-3">
+                <div class="flex items-center justify-between text-on-surface-variant font-mono text-xs">
+                  <span class="text-[10px] text-outline uppercase tracking-wider flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px] text-secondary">device_hub</span> Target Endpoint
+                  </span>
+                  <span class="text-secondary font-medium" id="channelFormat-1">48kHz • 24-bit</span>
+                </div>
+                <div class="relative flex items-center bg-surface-container-highest/60 rounded border border-white/10 px-2 py-1">
+                  <span id="channelBtIcon-1" class="material-symbols-outlined text-[16px] text-secondary mr-1.5 hidden">bluetooth</span>
+                  <select id="channelDeviceSelect-1" class="bg-transparent font-mono text-xs text-on-surface outline-none w-full cursor-pointer truncate" onchange="onChannelDeviceSelect(1, this.value)">
+                    <option value="Speakers (Realtek(R) Audio)">Speakers (Realtek(R) Audio)</option>
+                  </select>
+                </div>
               </div>
               <div class="flex items-center justify-between px-3 py-1.5 bg-surface-container rounded-md border border-white/5 mb-4">
                 <span class="text-[10px] font-mono text-outline uppercase">Individual DSP</span>
@@ -440,9 +464,19 @@
                 </div>
                 <span class="px-2 py-0.5 rounded bg-tertiary/10 border border-tertiary/20 text-tertiary font-mono text-xs font-semibold">STREAM BUS</span>
               </div>
-              <div class="flex items-center justify-between text-on-surface-variant font-mono text-xs mb-3">
-                <span>OBS Studio / Discord Routing Aux</span>
-                <span class="text-secondary font-medium">48kHz • 24-bit</span>
+              <div class="flex flex-col gap-1.5 mb-3">
+                <div class="flex items-center justify-between text-on-surface-variant font-mono text-xs">
+                  <span class="text-[10px] text-outline uppercase tracking-wider flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px] text-tertiary">device_hub</span> Target Endpoint
+                  </span>
+                  <span class="text-secondary font-medium" id="channelFormat-2">48kHz • 24-bit</span>
+                </div>
+                <div class="relative flex items-center bg-surface-container-highest/60 rounded border border-white/10 px-2 py-1">
+                  <span id="channelBtIcon-2" class="material-symbols-outlined text-[16px] text-tertiary mr-1.5 hidden">bluetooth</span>
+                  <select id="channelDeviceSelect-2" class="bg-transparent font-mono text-xs text-on-surface outline-none w-full cursor-pointer truncate" onchange="onChannelDeviceSelect(2, this.value)">
+                    <option value="Line 1 (Virtual Audio Cable)">Line 1 (Virtual Audio Cable)</option>
+                  </select>
+                </div>
               </div>
               <div class="flex items-center justify-between px-3 py-1.5 bg-surface-container rounded-md border border-white/5 mb-4">
                 <div class="flex items-center gap-1.5">
@@ -1762,6 +1796,161 @@
       sendIpc('reset_matrix');
     }
 
+    function onCaptureNodeChanged(val) {
+      sendIpc('set_capture_device', { device_name: val });
+    }
+
+    function rescanAudioDevices() {
+      const icon = document.getElementById('rescanIcon');
+      if (icon) icon.classList.add('animate-spin');
+      sendIpc('refresh_devices');
+      setTimeout(() => {
+        if (icon) icon.classList.remove('animate-spin');
+      }, 800);
+    }
+
+    function onChannelDeviceSelect(chIdx, devName) {
+      state.channels[chIdx].selectedDevice = devName;
+      state.channels[chIdx].name = devName;
+
+      const sel = document.getElementById(`channelDeviceSelect-${chIdx}`);
+      const btIcon = document.getElementById(`channelBtIcon-${chIdx}`);
+      const fmt = document.getElementById(`channelFormat-${chIdx}`);
+      if (sel) {
+        const opt = sel.options[sel.selectedIndex];
+        if (opt && btIcon) {
+          if (opt.dataset.isBt === 'true') {
+            btIcon.classList.remove('hidden');
+          } else {
+            btIcon.classList.add('hidden');
+          }
+        }
+        if (opt && fmt) {
+          fmt.textContent = `${Math.round(parseInt(opt.dataset.sr || 48000) / 1000)}kHz • 24-bit`;
+        }
+      }
+
+      sendIpc('set_channel_device', { channel: chIdx, device_name: devName });
+      renderPatchbay();
+    }
+
+    window.onDevicesLoaded = function(devices) {
+      if (!devices || !Array.isArray(devices) || devices.length === 0) return;
+      state.devices = devices;
+
+      const outputs = devices.filter(d => !d.is_input);
+      const inputs = devices.filter(d => d.is_input);
+
+      // 1. Populate Header Capture Dropdown
+      const capSelect = document.getElementById('headerCaptureSelect');
+      if (capSelect) {
+        const curVal = capSelect.value;
+        capSelect.innerHTML = '';
+
+        const optLoop = document.createElement('option');
+        optLoop.value = 'loopback';
+        optLoop.textContent = 'Windows WASAPI Loopback (All Desktop Audio)';
+        optLoop.className = 'bg-surface-container-high text-on-surface font-semibold';
+        capSelect.appendChild(optLoop);
+
+        inputs.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.name;
+          const prefix = d.is_bluetooth ? '🎧 [BLUETOOTH] ' : '🎤 ';
+          opt.textContent = `${prefix}${d.name} (${Math.round(d.sample_rate / 1000)}kHz)`;
+          opt.className = d.is_bluetooth ? 'bg-surface-container-high text-primary font-semibold' : 'bg-surface-container-high text-on-surface';
+          capSelect.appendChild(opt);
+        });
+
+        if (curVal && Array.from(capSelect.options).some(o => o.value === curVal)) {
+          capSelect.value = curVal;
+        }
+      }
+
+      // 2. Populate 3 Channel Output Cards
+      [0, 1, 2].forEach(chIdx => {
+        const sel = document.getElementById(`channelDeviceSelect-${chIdx}`);
+        const btIcon = document.getElementById(`channelBtIcon-${chIdx}`);
+        const fmt = document.getElementById(`channelFormat-${chIdx}`);
+        if (!sel) return;
+
+        sel.innerHTML = '';
+        outputs.forEach((d) => {
+          const opt = document.createElement('option');
+          opt.value = d.name;
+          const btTag = d.is_bluetooth ? '🎧 [BLUETOOTH] ' : '';
+          const defTag = d.is_default ? ' ★ (System Default)' : '';
+          opt.textContent = `${btTag}${d.name}${defTag}`;
+          opt.className = d.is_bluetooth ? 'bg-surface-container-high text-primary font-semibold' : 'bg-surface-container-high text-on-surface';
+          opt.dataset.isBt = d.is_bluetooth ? 'true' : 'false';
+          opt.dataset.sr = d.sample_rate;
+          opt.dataset.ch = d.channels;
+          sel.appendChild(opt);
+        });
+
+        // Smart device selection on first load:
+        if (!state.channels[chIdx].selectedDevice) {
+          if (chIdx === 0) {
+            // First card prefers system default (which is Bluetooth Headphones if connected!) or first Bluetooth device
+            const preferred = outputs.find(d => d.is_default) || outputs.find(d => d.is_bluetooth) || outputs[0];
+            if (preferred) {
+              sel.value = preferred.name;
+              state.channels[chIdx].selectedDevice = preferred.name;
+              state.channels[chIdx].name = preferred.name;
+            }
+          } else if (chIdx === 1) {
+            // Second card prefers Speakers
+            const spk = outputs.find(d => d.name.toLowerCase().includes('speaker')) || outputs[1] || outputs[0];
+            if (spk) {
+              sel.value = spk.name;
+              state.channels[chIdx].selectedDevice = spk.name;
+              state.channels[chIdx].name = spk.name;
+            }
+          } else if (chIdx === 2) {
+            // Third card prefers Cable or Voicemeeter
+            const vc = outputs.find(d => d.name.toLowerCase().includes('cable') || d.name.toLowerCase().includes('voicemeeter')) || outputs[2] || outputs[0];
+            if (vc) {
+              sel.value = vc.name;
+              state.channels[chIdx].selectedDevice = vc.name;
+              state.channels[chIdx].name = vc.name;
+            }
+          }
+        } else {
+          sel.value = state.channels[chIdx].selectedDevice;
+        }
+
+        const selectedOpt = sel.options[sel.selectedIndex];
+        if (selectedOpt && btIcon) {
+          if (selectedOpt.dataset.isBt === 'true') {
+            btIcon.classList.remove('hidden');
+          } else {
+            btIcon.classList.add('hidden');
+          }
+        }
+        if (selectedOpt && fmt) {
+          fmt.textContent = `${Math.round(parseInt(selectedOpt.dataset.sr || 48000) / 1000)}kHz • 24-bit`;
+        }
+      });
+
+      // 3. Populate EQ Target Dropdown
+      const eqSelect = document.getElementById('eqTargetSelect');
+      if (eqSelect) {
+        eqSelect.innerHTML = '';
+        outputs.forEach((d, idx) => {
+          const opt = document.createElement('option');
+          opt.value = idx.toString();
+          const btTag = d.is_bluetooth ? '🎧 [BLUETOOTH] ' : '';
+          const defTag = d.is_default ? ' ★' : '';
+          opt.textContent = `${btTag}${d.name}${defTag}`;
+          opt.className = d.is_bluetooth ? 'bg-surface-container-high text-primary font-semibold' : 'bg-surface-container-high text-on-surface';
+          eqSelect.appendChild(opt);
+        });
+      }
+
+      // 4. Update Patchbay
+      renderPatchbay();
+    };
+
     window.onAudioTelemetry = function(data) {
       if (!data) return;
 
@@ -1826,6 +2015,21 @@
     renderSliders();
     renderInteractiveNodes();
     requestAnimationFrame(drawDspCanvas);
+    sendIpc('get_devices');
+
+    if (!window.ipc || !window.ipc.postMessage) {
+      setTimeout(() => {
+        window.onDevicesLoaded([
+          { name: "Headphones (Tronsmart T7)", is_default: true, is_input: false, is_bluetooth: true, sample_rate: 48000, channels: 2 },
+          { name: "Speakers (Realtek(R) Audio)", is_default: false, is_input: false, is_bluetooth: false, sample_rate: 48000, channels: 2 },
+          { name: "Line 1 (Virtual Audio Cable)", is_default: false, is_input: false, is_bluetooth: false, sample_rate: 48000, channels: 2 },
+          { name: "Voicemeeter Input (VB-Audio Voicemeeter VAIO)", is_default: false, is_input: false, is_bluetooth: false, sample_rate: 48000, channels: 2 },
+          { name: "Headset (Tronsmart T7)", is_default: false, is_input: true, is_bluetooth: true, sample_rate: 16000, channels: 1 },
+          { name: "Microphone Array (Intel® Smart Sound)", is_default: false, is_input: true, is_bluetooth: false, sample_rate: 48000, channels: 2 },
+          { name: "Line 1 (Virtual Audio Cable)", is_default: true, is_input: true, is_bluetooth: false, sample_rate: 48000, channels: 2 },
+        ]);
+      }, 50);
+    }
 
     const urlTab = new URLSearchParams(window.location.search).get('tab');
     if (urlTab) {

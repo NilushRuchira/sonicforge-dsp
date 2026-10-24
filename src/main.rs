@@ -16,15 +16,35 @@ use audio::AudioEngine;
 
 enum UserEvent {
     AudioTelemetry(String),
+    DevicesLoaded(String),
 }
 
 fn main() {
+    std::panic::set_hook(Box::new(|info| {
+        let msg = format!("PANIC: {}", info);
+        eprintln!("{}", msg);
+        let _ = std::fs::write("panic.log", msg);
+    }));
+
+    let _ = std::fs::write("app_startup.log", "=== SonicForge DSP Startup ===\n");
+
+    macro_rules! log_step {
+        ($($arg:tt)*) => {{
+            let s = format!($($arg)*);
+            println!("{}", s);
+            use std::io::Write;
+            if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open("app_startup.log") {
+                let _ = writeln!(f, "{}", s);
+            }
+        }};
+    }
+
     let args: Vec<String> = std::env::args().collect();
 
-    println!("============================================================");
-    println!(" SonicForge DSP - Windows Audio Matrix & DSP Control Center ");
-    println!(" Core Version: 2.4.12-x64 (Windows 11 Fluent Studio)       ");
-    println!("============================================================");
+    log_step!("============================================================");
+    log_step!(" SonicForge DSP - Windows Audio Matrix & DSP Control Center ");
+    log_step!(" Core Version: 2.4.12-x64 (Windows 11 Fluent Studio)       ");
+    log_step!("============================================================");
 
     // Initialize high-performance audio engine
     let engine = Arc::new(Mutex::new(AudioEngine::new()));
@@ -33,29 +53,30 @@ fn main() {
     {
         let eng = engine.lock();
         let devices = eng.get_devices();
-        println!("[Audio Core] Enumerated {} active WASAPI endpoints:", devices.len());
+        log_step!("[Audio Core] Enumerated {} active WASAPI endpoints:", devices.len());
         for (i, dev) in devices.iter().enumerate() {
             let role = if dev.is_input { "CAPTURE" } else { "RENDER" };
             let def = if dev.is_default { " (DEFAULT)" } else { "" };
-            println!("  [{}] [{}] {} - {}Hz/{}ch{}", i, role, dev.name, dev.sample_rate, dev.channels, def);
+            log_step!("  [{}] [{}] {} - {}Hz/{}ch{}", i, role, dev.name, dev.sample_rate, dev.channels, def);
         }
     }
 
     // If headless verification argument is passed, run automated audio pipeline validation and exit
     if args.contains(&"--verify-pipeline".to_string()) {
-        println!("[Verify] Running audio pipeline verification in headless mode...");
+        log_step!("[Verify] Running audio pipeline verification in headless mode...");
         thread::sleep(Duration::from_millis(500));
         let telemetry = engine.lock().poll_telemetry();
-        println!("[Verify] Sample Rate: {} Hz", telemetry.sample_rate);
-        println!("[Verify] Buffer Size: {} samples ({:.2} ms)", telemetry.buffer_size, telemetry.latency_ms);
-        println!("[Verify] Peak L: {:.2} dBFS, Peak R: {:.2} dBFS", telemetry.master_peak_l, telemetry.master_peak_r);
-        println!("[Verify] RMS L: {:.2} dBFS, RMS R: {:.2} dBFS", telemetry.master_rms_l, telemetry.master_rms_r);
-        println!("[Verify] Spectrum 32-bins: {} items, FFT 72-bins: {} items", telemetry.spectrum_32.len(), telemetry.spectrum_72.len());
-        println!("[Verify] Pipeline successfully validated with 0 dropouts!");
+        log_step!("[Verify] Sample Rate: {} Hz", telemetry.sample_rate);
+        log_step!("[Verify] Buffer Size: {} samples ({:.2} ms)", telemetry.buffer_size, telemetry.latency_ms);
+        log_step!("[Verify] Peak L: {:.2} dBFS, Peak R: {:.2} dBFS", telemetry.master_peak_l, telemetry.master_peak_r);
+        log_step!("[Verify] RMS L: {:.2} dBFS, RMS R: {:.2} dBFS", telemetry.master_rms_l, telemetry.master_rms_r);
+        log_step!("[Verify] Spectrum 32-bins: {} items, FFT 72-bins: {} items", telemetry.spectrum_32.len(), telemetry.spectrum_72.len());
+        log_step!("[Verify] Pipeline successfully validated with 0 dropouts!");
         return;
     }
 
     // Set up native window event loop
+    log_step!("[GUI] Building EventLoop and Native Window...");
     let event_loop = EventLoopBuilder::<UserEvent>::with_user_event().build();
     let proxy = event_loop.create_proxy();
 
@@ -63,11 +84,16 @@ fn main() {
         .with_title("SonicForge DSP - Windows Audio Matrix & DSP Control Center")
         .with_inner_size(LogicalSize::new(1400.0, 880.0))
         .with_min_inner_size(LogicalSize::new(1024.0, 700.0))
+        .with_visible(true)
+        .with_focused(true)
         .build(&event_loop)
         .expect("Failed to create native desktop window");
 
+    log_step!("[GUI] Native Window created successfully. Initializing WebView2...");
+
     // IPC Command Handler Bridge
     let engine_ipc = engine.clone();
+    let proxy_ipc = proxy.clone();
     let webview = WebViewBuilder::new()
         .with_html(ui::get_html())
         .with_ipc_handler(move |req: wry::http::Request<String>| {
@@ -78,6 +104,21 @@ fn main() {
                     let mut router = eng.router.lock();
 
                     match cmd {
+                        "get_devices" => {
+                            let devs = eng.get_devices();
+                            if let Ok(json) = serde_json::to_string(&devs) {
+                                let _ = proxy_ipc.send_event(UserEvent::DevicesLoaded(json));
+                            }
+                        }
+                        "refresh_devices" => {
+                            drop(router);
+                            drop(eng);
+                            let mut eng_mut = engine_ipc.lock();
+                            let devs = eng_mut.refresh_devices();
+                            if let Ok(json) = serde_json::to_string(&devs) {
+                                let _ = proxy_ipc.send_event(UserEvent::DevicesLoaded(json));
+                            }
+                        }
                         "set_channel_gain" => {
                             if let (Some(ch), Some(gain)) = (v.get("channel").and_then(|c| c.as_u64()), v.get("gain_db").and_then(|g| g.as_f64())) {
                                 if (ch as usize) < router.channels.len() {
@@ -275,6 +316,7 @@ fn main() {
     // Spawn 60 FPS Telemetry Dispatcher thread
     let engine_telemetry = engine.clone();
     let is_running = engine.lock().is_running.clone();
+    let proxy_telemetry = proxy.clone();
     thread::Builder::new()
         .name("telemetry-pump".to_string())
         .spawn(move || {
@@ -285,13 +327,19 @@ fn main() {
                     eng.poll_telemetry()
                 };
                 if let Ok(json) = serde_json::to_string(&data) {
-                    let _ = proxy.send_event(UserEvent::AudioTelemetry(json));
+                    let _ = proxy_telemetry.send_event(UserEvent::AudioTelemetry(json));
                 }
             }
         })
         .expect("Failed to spawn telemetry thread");
 
-    println!("[SonicForge GUI] Desktop Window active. Starting event loop at 60 FPS.");
+    // Push initial devices list to event loop
+    let initial_devs = engine.lock().get_devices();
+    if let Ok(json) = serde_json::to_string(&initial_devs) {
+        let _ = proxy.send_event(UserEvent::DevicesLoaded(json));
+    }
+
+    log_step!("[SonicForge GUI] Desktop Window active. Starting event loop at 60 FPS.");
 
     // Run native event loop
     event_loop.run(move |event, _, control_flow| {
@@ -302,11 +350,22 @@ fn main() {
                 let script = format!("window.onAudioTelemetry({});", json_data);
                 let _ = webview.evaluate_script(&script);
             }
+            Event::UserEvent(UserEvent::DevicesLoaded(json_data)) => {
+                let script = format!("if (window.onDevicesLoaded) {{ window.onDevicesLoaded({}); }}", json_data);
+                let _ = webview.evaluate_script(&script);
+            }
             Event::WindowEvent {
                 event: WindowEvent::CloseRequested,
                 ..
             } => {
-                println!("[SonicForge DSP] Shutting down application cleanly.");
+                log_step!("[SonicForge DSP] Shutting down application cleanly (CloseRequested).");
+                *control_flow = ControlFlow::Exit;
+            }
+            Event::WindowEvent {
+                event: WindowEvent::Destroyed,
+                ..
+            } => {
+                log_step!("[SonicForge DSP] Window Destroyed.");
                 *control_flow = ControlFlow::Exit;
             }
             _ => {}
