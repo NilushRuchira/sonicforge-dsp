@@ -278,6 +278,21 @@ fn main() {
                                 router.master_reverb.enabled = !bypassed;
                             }
                         }
+                        "set_test_mode" => {
+                            if let Some(en) = v.get("enabled").and_then(|e| e.as_bool()) {
+                                eng.test_mode.store(en, std::sync::atomic::Ordering::Relaxed);
+                            }
+                        }
+                        "set_channel_device" => {
+                            if let (Some(ch), Some(dev_name)) = (v.get("channel").and_then(|c| c.as_u64()), v.get("device_name").and_then(|d| d.as_str())) {
+                                if ch == 0 {
+                                    drop(router);
+                                    drop(eng);
+                                    let mut eng_mut = engine_ipc.lock();
+                                    eng_mut.switch_output_device(dev_name);
+                                }
+                            }
+                        }
                         "set_matrix_crosspoint" => {
                             if let (Some(s), Some(c), Some(conn)) = (
                                 v.get("source").and_then(|s| s.as_u64()),

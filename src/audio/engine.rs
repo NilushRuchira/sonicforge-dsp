@@ -5,7 +5,7 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use std::thread;
 use parking_lot::Mutex;
-use cpal::traits::{DeviceTrait, HostTrait};
+use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use rtrb::{RingBuffer, Producer, Consumer};
 use crate::dsp::matrix::AudioMatrixRouter;
 
@@ -45,41 +45,182 @@ pub struct AudioEngine {
     pub buffer_size: Arc<AtomicU32>,
     pub underruns: Arc<AtomicU64>,
     pub router: Arc<Mutex<AudioMatrixRouter>>,
+    producer: Arc<Mutex<Producer<f32>>>,
     consumer: Option<Consumer<f32>>,
     devices: Vec<AudioDeviceInfo>,
-    test_mode: Arc<AtomicBool>,
+    pub test_mode: Arc<AtomicBool>,
+    pub output_stream: Option<cpal::Stream>,
+    pub input_stream: Option<cpal::Stream>,
 }
 
 impl AudioEngine {
     pub fn new() -> Self {
         let (producer, consumer) = RingBuffer::new(RING_BUFFER_CAPACITY);
+        let producer = Arc::new(Mutex::new(producer));
         let sample_rate = Arc::new(AtomicU32::new(48000));
-        let buffer_size = Arc::new(AtomicU32::new(64));
+        let buffer_size = Arc::new(AtomicU32::new(480));
         let underruns = Arc::new(AtomicU64::new(0));
         let is_running = Arc::new(AtomicBool::new(true));
-        let test_mode = Arc::new(AtomicBool::new(true));
+        let test_mode = Arc::new(AtomicBool::new(true)); // Test synth enabled by default for immediate audible feedback
         let router = Arc::new(Mutex::new(AudioMatrixRouter::new(48000.0)));
 
         let devices = Self::enumerate_devices();
 
-        // Spawn real-time audio thread
-        let is_running_clone = is_running.clone();
-        let router_clone = router.clone();
-        let underruns_clone = underruns.clone();
-        let test_mode_clone = test_mode.clone();
+        let host = cpal::default_host();
+        let mut output_stream = None;
+        let mut input_stream = None;
 
-        thread::Builder::new()
-            .name("sonicforge-audio".to_string())
-            .spawn(move || {
-                Self::audio_thread_loop(
-                    is_running_clone,
-                    router_clone,
-                    producer,
-                    underruns_clone,
-                    test_mode_clone,
+        // Attempt to connect to real hardware output device
+        if let Some(out_dev) = host.default_output_device() {
+            if let Ok(config) = out_dev.default_output_config() {
+                let stream_config: cpal::StreamConfig = config.into();
+                let channels = stream_config.channels as usize;
+                let sr = stream_config.sample_rate as f32;
+
+                sample_rate.store(stream_config.sample_rate, Ordering::Relaxed);
+
+                // Lock-free ring buffer for capturing desktop loopback frames
+                let (mut loopback_prod, mut loopback_cons) = RingBuffer::<f32>::new(65536);
+
+                // Attempt to bind WASAPI Loopback stream to capture PC audio
+                if let Ok(in_config) = out_dev.default_output_config() {
+                    let in_stream_config: cpal::StreamConfig = in_config.into();
+                    let in_ch = in_stream_config.channels as usize;
+
+                    let in_res = out_dev.build_input_stream(
+                        in_stream_config,
+                        move |data: &[f32], _| {
+                            for chunk in data.chunks(in_ch) {
+                                let l = chunk[0];
+                                let r = if chunk.len() > 1 { chunk[1] } else { l };
+                                let _ = loopback_prod.push(l);
+                                let _ = loopback_prod.push(r);
+                            }
+                        },
+                        |err| eprintln!("[Audio Core] Loopback capture warning: {}", err),
+                        None,
+                    );
+
+                    if let Ok(st) = in_res {
+                        if st.play().is_ok() {
+                            input_stream = Some(st);
+                            println!("[Audio Core] WASAPI Loopback Capture Stream ACTIVE");
+                        }
+                    }
+                }
+
+                let router_out = router.clone();
+                let test_mode_out = test_mode.clone();
+                let underruns_out = underruns.clone();
+                let producer_out = producer.clone();
+
+                let mut beat_phase = 0.0_f32;
+                let mut phase_sub = 0.0_f32;
+                let mut phase_bass = 0.0_f32;
+                let mut phase_mid = 0.0_f32;
+                let mut phase_high = 0.0_f32;
+
+                let out_res = out_dev.build_output_stream(
+                    stream_config,
+                    move |data: &mut [f32], _| {
+                        let mut r = router_out.lock();
+                        let is_synth = test_mode_out.load(Ordering::Relaxed);
+
+                        for frame in data.chunks_mut(channels) {
+                            let mut in_l = 0.0_f32;
+                            let mut in_r = 0.0_f32;
+
+                            if let Ok(l) = loopback_cons.pop() {
+                                in_l = l;
+                                in_r = loopback_cons.pop().unwrap_or(l);
+                            }
+
+                            // If test synth is active, synthesize high-fidelity musical audio track
+                            if is_synth {
+                                beat_phase += 1.0 / (sr * 0.5);
+                                let kick = ((beat_phase * std::f32::consts::PI).sin().powi(8)).max(0.0);
+                                let bass_env = 0.3 + 0.4 * kick;
+
+                                phase_sub += 2.0 * std::f32::consts::PI * 55.0 / sr;
+                                phase_bass += 2.0 * std::f32::consts::PI * 110.0 / sr;
+                                phase_mid += 2.0 * std::f32::consts::PI * 440.0 / sr;
+                                phase_high += 2.0 * std::f32::consts::PI * 3520.0 / sr;
+
+                                if phase_sub > 2.0 * std::f32::consts::PI { phase_sub -= 2.0 * std::f32::consts::PI; }
+                                if phase_bass > 2.0 * std::f32::consts::PI { phase_bass -= 2.0 * std::f32::consts::PI; }
+                                if phase_mid > 2.0 * std::f32::consts::PI { phase_mid -= 2.0 * std::f32::consts::PI; }
+                                if phase_high > 2.0 * std::f32::consts::PI { phase_high -= 2.0 * std::f32::consts::PI; }
+
+                                let synth_l = (phase_sub.sin() * 0.45 * bass_env
+                                    + phase_bass.sin() * 0.25
+                                    + phase_mid.sin() * 0.20
+                                    + phase_high.sin() * 0.08) * 0.45;
+
+                                let synth_r = (phase_sub.cos() * 0.45 * bass_env
+                                    + (phase_bass + 0.2).sin() * 0.25
+                                    + (phase_mid + 0.4).sin() * 0.20
+                                    + (phase_high + 0.6).sin() * 0.08) * 0.45;
+
+                                in_l = synth_l;
+                                in_r = synth_r;
+                            }
+
+                            // Real-Time DSP Audio Processing:
+                            // 10/20-Band Biquad EQ -> Real Bass -> Treble Sparkle -> Reverb -> Limiter
+                            let (sum_l, sum_r, outs) = r.process_frame(in_l, in_r);
+
+                            let (final_l, final_r) = if let Some(ch0) = outs.get(0) {
+                                (ch0[0], ch0[1])
+                            } else {
+                                (sum_l, sum_r)
+                            };
+
+                            if channels >= 2 {
+                                frame[0] = final_l;
+                                frame[1] = final_r;
+                            } else if channels == 1 {
+                                frame[0] = (final_l + final_r) * 0.5;
+                            }
+
+                            if producer_out.lock().push(final_l).is_err() {
+                                underruns_out.fetch_add(1, Ordering::Relaxed);
+                            }
+                        }
+                    },
+                    |err| eprintln!("[Audio Core] Hardware playback warning: {}", err),
+                    None,
                 );
-            })
-            .expect("Failed to spawn audio engine thread");
+
+                if let Ok(st) = out_res {
+                    if st.play().is_ok() {
+                        output_stream = Some(st);
+                        println!("[Audio Core] Hardware Output Playback Stream ACTIVE on default device");
+                    }
+                }
+            }
+        }
+
+        // Fallback simulation loop if hardware stream couldn't open (e.g. headless CI mode)
+        if output_stream.is_none() {
+            let is_running_clone = is_running.clone();
+            let router_clone = router.clone();
+            let underruns_clone = underruns.clone();
+            let test_mode_clone = test_mode.clone();
+            let producer_fallback = producer.clone();
+
+            thread::Builder::new()
+                .name("sonicforge-audio-fallback".to_string())
+                .spawn(move || {
+                    Self::audio_thread_loop(
+                        is_running_clone,
+                        router_clone,
+                        producer_fallback,
+                        underruns_clone,
+                        test_mode_clone,
+                    );
+                })
+                .expect("Failed to spawn audio engine thread");
+        }
 
         Self {
             is_running,
@@ -87,9 +228,141 @@ impl AudioEngine {
             buffer_size,
             underruns,
             router,
+            producer,
             consumer: Some(consumer),
             devices,
             test_mode,
+            output_stream,
+            input_stream,
+        }
+    }
+
+    /// Dynamically switch hardware playback endpoint to selected device (e.g. Bluetooth Headphones)
+    pub fn switch_output_device(&mut self, device_name: &str) {
+        let host = cpal::default_host();
+        if let Ok(devices) = host.output_devices() {
+            for dev in devices {
+                if let Ok(desc) = dev.description() {
+                    if desc.name() == device_name {
+                        if let Ok(config) = dev.default_output_config() {
+                            let stream_config: cpal::StreamConfig = config.into();
+                            let channels = stream_config.channels as usize;
+                            let sr = stream_config.sample_rate as f32;
+                            self.sample_rate.store(stream_config.sample_rate, Ordering::Relaxed);
+
+                            let (mut loopback_prod, mut loopback_cons) = RingBuffer::<f32>::new(65536);
+                            if let Ok(in_config) = dev.default_output_config() {
+                                let in_stream_config: cpal::StreamConfig = in_config.into();
+                                let in_ch = in_stream_config.channels as usize;
+                                let in_res = dev.build_input_stream(
+                                    in_stream_config,
+                                    move |data: &[f32], _| {
+                                        for chunk in data.chunks(in_ch) {
+                                            let l = chunk[0];
+                                            let r = if chunk.len() > 1 { chunk[1] } else { l };
+                                            let _ = loopback_prod.push(l);
+                                            let _ = loopback_prod.push(r);
+                                        }
+                                    },
+                                    |e| eprintln!("[Audio Core] Loopback capture warning: {}", e),
+                                    None,
+                                );
+                                if let Ok(st) = in_res {
+                                    if st.play().is_ok() {
+                                        self.input_stream = Some(st);
+                                    }
+                                }
+                            }
+
+                            let router_out = self.router.clone();
+                            let test_mode_out = self.test_mode.clone();
+                            let underruns_out = self.underruns.clone();
+                            let producer_out = self.producer.clone();
+
+                            let mut beat_phase = 0.0_f32;
+                            let mut phase_sub = 0.0_f32;
+                            let mut phase_bass = 0.0_f32;
+                            let mut phase_mid = 0.0_f32;
+                            let mut phase_high = 0.0_f32;
+
+                            let out_res = dev.build_output_stream(
+                                stream_config,
+                                move |data: &mut [f32], _| {
+                                    let mut r = router_out.lock();
+                                    let is_synth = test_mode_out.load(Ordering::Relaxed);
+
+                                    for frame in data.chunks_mut(channels) {
+                                        let mut in_l = 0.0_f32;
+                                        let mut in_r = 0.0_f32;
+
+                                        if let Ok(l) = loopback_cons.pop() {
+                                            in_l = l;
+                                            in_r = loopback_cons.pop().unwrap_or(l);
+                                        }
+
+                                        if is_synth {
+                                            beat_phase += 1.0 / (sr * 0.5);
+                                            let kick = ((beat_phase * std::f32::consts::PI).sin().powi(8)).max(0.0);
+                                            let bass_env = 0.3 + 0.4 * kick;
+
+                                            phase_sub += 2.0 * std::f32::consts::PI * 55.0 / sr;
+                                            phase_bass += 2.0 * std::f32::consts::PI * 110.0 / sr;
+                                            phase_mid += 2.0 * std::f32::consts::PI * 440.0 / sr;
+                                            phase_high += 2.0 * std::f32::consts::PI * 3520.0 / sr;
+
+                                            if phase_sub > 2.0 * std::f32::consts::PI { phase_sub -= 2.0 * std::f32::consts::PI; }
+                                            if phase_bass > 2.0 * std::f32::consts::PI { phase_bass -= 2.0 * std::f32::consts::PI; }
+                                            if phase_mid > 2.0 * std::f32::consts::PI { phase_mid -= 2.0 * std::f32::consts::PI; }
+                                            if phase_high > 2.0 * std::f32::consts::PI { phase_high -= 2.0 * std::f32::consts::PI; }
+
+                                            let synth_l = (phase_sub.sin() * 0.45 * bass_env
+                                                + phase_bass.sin() * 0.25
+                                                + phase_mid.sin() * 0.20
+                                                + phase_high.sin() * 0.08) * 0.45;
+
+                                            let synth_r = (phase_sub.cos() * 0.45 * bass_env
+                                                + (phase_bass + 0.2).sin() * 0.25
+                                                + (phase_mid + 0.4).sin() * 0.20
+                                                + (phase_high + 0.6).sin() * 0.08) * 0.45;
+
+                                            in_l = synth_l;
+                                            in_r = synth_r;
+                                        }
+
+                                        let (sum_l, sum_r, outs) = r.process_frame(in_l, in_r);
+                                        let (final_l, final_r) = if let Some(ch0) = outs.get(0) {
+                                            (ch0[0], ch0[1])
+                                        } else {
+                                            (sum_l, sum_r)
+                                        };
+
+                                        if channels >= 2 {
+                                            frame[0] = final_l;
+                                            frame[1] = final_r;
+                                        } else if channels == 1 {
+                                            frame[0] = (final_l + final_r) * 0.5;
+                                        }
+
+                                        if producer_out.lock().push(final_l).is_err() {
+                                            underruns_out.fetch_add(1, Ordering::Relaxed);
+                                        }
+                                    }
+                                },
+                                |e| eprintln!("[Audio Core] Output playback error: {}", e),
+                                None,
+                            );
+
+                            if let Ok(st) = out_res {
+                                if st.play().is_ok() {
+                                    self.output_stream = Some(st);
+                                    println!("[Audio Core] Switched Output Stream to device: {}", device_name);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -217,7 +490,7 @@ impl AudioEngine {
     fn audio_thread_loop(
         is_running: Arc<AtomicBool>,
         router: Arc<Mutex<AudioMatrixRouter>>,
-        mut producer: Producer<f32>,
+        producer: Arc<Mutex<Producer<f32>>>,
         underruns: Arc<AtomicU64>,
         _test_mode: Arc<AtomicBool>,
     ) {
@@ -269,7 +542,7 @@ impl AudioEngine {
                     let (sum_l, _sum_r, _outputs) = r.process_frame(in_l, in_r);
 
                     // Push processed mono/stereo sum sample to ring buffer for visualizer
-                    if producer.push(sum_l).is_err() {
+                    if producer.lock().push(sum_l).is_err() {
                         underruns.fetch_add(1, Ordering::Relaxed);
                     }
                 }

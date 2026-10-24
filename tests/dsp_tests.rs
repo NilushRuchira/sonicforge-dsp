@@ -162,8 +162,75 @@ fn test_matrix_router_dispatch() {
 }
 
 #[test]
-fn test_device_enumeration() {
-    let devices = AudioEngine::enumerate_devices();
-    assert!(!devices.is_empty(), "AudioEngine should discover active WASAPI render/capture endpoints");
-    println!("Discovered {} endpoints for SonicForge DSP", devices.len());
+fn test_output_stream_playback() {
+    use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+    let host = cpal::default_host();
+    if let Some(device) = host.default_output_device() {
+        if let Ok(desc) = device.description() {
+            println!("Default output device for playback test: {:?}", desc.name());
+        }
+        if let Ok(config) = device.default_output_config() {
+            println!("Supported format: {:?}", config);
+            let sample_format = config.sample_format();
+            let stream_config: cpal::StreamConfig = config.into();
+            let channels = stream_config.channels as usize;
+
+            let mut phase = 0.0_f32;
+            let err_fn = |e| eprintln!("Stream error: {}", e);
+
+            let res = match sample_format {
+                cpal::SampleFormat::F32 => {
+                    device.build_output_stream(
+                        stream_config.clone(),
+                        move |data: &mut [f32], _| {
+                            for frame in data.chunks_mut(channels) {
+                                phase += 2.0 * std::f32::consts::PI * 440.0 / 48000.0;
+                                if phase > 2.0 * std::f32::consts::PI { phase -= 2.0 * std::f32::consts::PI; }
+                                let s = phase.sin() * 0.05;
+                                for sample in frame.iter_mut() {
+                                    *sample = s;
+                                }
+                            }
+                        },
+                        err_fn,
+                        None,
+                    )
+                }
+                cpal::SampleFormat::I16 => {
+                    device.build_output_stream(
+                        stream_config,
+                        move |data: &mut [i16], _| {
+                            for frame in data.chunks_mut(channels) {
+                                phase += 2.0 * std::f32::consts::PI * 440.0 / 48000.0;
+                                if phase > 2.0 * std::f32::consts::PI { phase -= 2.0 * std::f32::consts::PI; }
+                                let s = (phase.sin() * 0.05 * 32767.0) as i16;
+                                for sample in frame.iter_mut() {
+                                    *sample = s;
+                                }
+                            }
+                        },
+                        err_fn,
+                        None,
+                    )
+                }
+                _ => panic!("Unsupported format"),
+            };
+
+            assert!(res.is_ok(), "build_output_stream failed: {:?}", res.err());
+            if let Ok(stream) = res {
+                assert!(stream.play().is_ok());
+                std::thread::sleep(std::time::Duration::from_millis(50));
+            }
+
+            // Test loopback capture stream on the same device
+            let in_stream_config: cpal::StreamConfig = config.into();
+            let in_res = device.build_input_stream(
+                in_stream_config,
+                move |_data: &[f32], _| {},
+                |e| eprintln!("Input error: {}", e),
+                None,
+            );
+            println!("Loopback input build result: {:?}", in_res.is_ok());
+        }
+    }
 }

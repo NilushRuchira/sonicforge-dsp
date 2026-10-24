@@ -122,6 +122,13 @@
         <span class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_6px_rgba(0,229,255,0.8)]" id="dspSyncDot"></span>
       </button>
 
+      <!-- Audible Sound Synth Preview Toggle -->
+      <button id="synthPreviewBtn" onclick="toggleSynthPreview()" title="Toggle Audible Sound Synth Preview" class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-surface-container border border-primary/50 text-primary transition-all text-xs font-mono shadow-[0_0_8px_rgba(0,229,255,0.2)]">
+        <span class="material-symbols-outlined text-[16px] text-primary" id="synthPreviewIcon">music_note</span>
+        <span class="hidden sm:inline font-sans font-semibold uppercase text-[11px]" id="synthPreviewLabel">Synth Audio ON</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_6px_rgba(0,229,255,0.8)]" id="synthPreviewDot"></span>
+      </button>
+
       <!-- Master Mute Toggle -->
       <button id="masterMuteBtn" onclick="toggleMasterMute()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-surface-container border border-surface-container-high hover:bg-error/20 hover:text-error text-on-surface-variant transition-all">
         <span class="material-symbols-outlined text-[16px]" id="masterMuteIcon">volume_up</span>
@@ -1167,6 +1174,25 @@
         renderSliders();
         renderInteractiveNodes();
       }
+    }
+
+    state.synthPreview = true;
+
+    function toggleSynthPreview() {
+      state.synthPreview = !state.synthPreview;
+      const btn = document.getElementById('synthPreviewBtn');
+      const lbl = document.getElementById('synthPreviewLabel');
+      const dot = document.getElementById('synthPreviewDot');
+      if (state.synthPreview) {
+        btn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-surface-container border border-primary/50 text-primary transition-all text-xs font-mono shadow-[0_0_8px_rgba(0,229,255,0.2)]";
+        lbl.textContent = "Synth Audio ON";
+        dot.className = "w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_6px_rgba(0,229,255,0.8)]";
+      } else {
+        btn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-surface-container border border-white/10 text-outline transition-all text-xs font-mono";
+        lbl.textContent = "Synth Audio OFF";
+        dot.className = "w-1.5 h-1.5 rounded-full bg-outline";
+      }
+      sendIpc('set_test_mode', { enabled: state.synthPreview });
     }
 
     function toggleDspSync() {
