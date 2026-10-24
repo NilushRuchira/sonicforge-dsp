@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "inverse-primary": "#006875", "secondary-fixed-dim": "#4edea3", "on-background": "#e2e2eb", "inverse-on-surface": "#2e3037", "inverse-surface": "#e2e2eb", "on-tertiary": "#472a00", "error": "#ffb4ab", "primary-fixed-dim": "#00daf3", "surface-bright": "#373940", "tertiary-fixed": "#ffddb8", "tertiary-fixed-dim": "#ffb95f", "surface-container-high": "#282a30", "secondary-container": "#00a572", "on-error": "#690005", "tertiary": "#ffe9d3", "surface-dim": "#111319", "outline-variant": "#3b494c", "background": "#111319", "on-primary-fixed": "#001f24", "on-secondary": "#003824", "surface": "#111319", "primary-container": "#00e5ff", "on-secondary-container": "#00311f", "on-primary": "#00363d", "on-secondary-fixed": "#002113", "error-container": "#93000a", "tertiary-container": "#ffc681", "surface-container-low": "#191b22", "on-secondary-fixed-variant": "#005236", "surface-container-lowest": "#0c0e14", "on-tertiary-fixed": "#2a1700", "on-error-container": "#ffdad6", "primary": "#c3f5ff", "surface-container-highest": "#33343b", "on-primary-container": "#00626e", "on-surface-variant": "#bac9cc", "outline": "#849396", "surface-variant": "#33343b", "surface-tint": "#00daf3", "on-primary-fixed-variant": "#004f58", "secondary": "#4edea3", "primary-fixed": "#9cf0ff", "on-tertiary-container": "#7e4e00", "secondary-fixed": "#6ffbbe", "on-tertiary-fixed-variant": "#653e00", "surface-container": "#1e1f26", "on-surface": "#e2e2eb" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "gutter-md": "0.75rem", "space-sm": "0.5rem", "gutter": "0.5rem", "margin": "0.75rem", "space-2xs": "0.125rem", "space-xs": "0.25rem", "margin-desktop": "1.25rem", "space-md": "0.75rem", "space-lg": "1rem", "gutter-lg": "1rem", "space-xl": "1.5rem" }, "fontFamily": { "mono-metric-lg": [ "JetBrains Mono" ], "label-caps": [ "Geist" ], "headline-lg": [ "Geist" ], "mono-metric-md": [ "JetBrains Mono" ], "body-sm": [ "Geist" ], "display-lg": [ "Geist" ], "body-lg": [ "Geist" ], "mono-metric-sm": [ "JetBrains Mono" ], "headline-sm": [ "Geist" ] }, "fontSize": { "mono-metric-lg": [ "18px", { "lineHeight": "24px", "letterSpacing": "-0.03em", "fontWeight": "600" } ], "label-caps": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" } ], "headline-lg": [ "24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "mono-metric-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" } ], "body-sm": [ "12px", { "lineHeight": "16px", "fontWeight": "400" } ], "display-lg": [ "32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "body-lg": [ "14px", { "lineHeight": "20px", "fontWeight": "400" } ], "mono-metric-sm": [ "10px", { "lineHeight": "12px", "letterSpacing": "0.02em", "fontWeight": "500" } ], "headline-sm": [ "18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "500" } ] } } } };</script></head><body class="bg-surface font-body-lg text-on-surface min-h-screen selection:bg-primary selection:text-on-primary-fixed"><header class="fixed top-0 left-0 right-0 h-16 bg-surface-container-low/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.45)] z-50 px-margin-desktop flex items-center justify-between gap-gutter"><div class="flex items-center gap-gutter"><img alt="SonicForge Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XN6useak7AcQ9qFdNbb2UZCU8FEGEhMXmB9FVO-4deN2LgVrju2zQPM8wQHWx9vW2BDpdiMqoBP7KZ9C710EiMYQzwfu6Xp5Dzg2DwqgaYfaj9NDf2ORo6qx8JQbxwR1rHEQR5iTvANjByRluHs6xqoid91LyQ5ANGJLhcJjAK7e3qM_OqIrz-cEtZWqFoXbMt46WesVy_ZNl3zMw_s3hUPpGRDdqfKZ6cxs9PsYFDTsaclyQK8WgLaaw"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight leading-none">SonicForge DSP</span><span class="font-mono-metric-sm text-mono-metric-sm text-outline tracking-wider uppercase mt-space-2xs">Windows 11 Fluent Engine</span></div><div class="h-6 w-px bg-surface-container-highest mx-space-xs"></div><div class="hidden xl:flex items-center gap-space-xs px-space-sm py-space-2xs rounded bg-surface-container-lowest shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]"><span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_6px_rgba(78,222,163,0.8)]"></span><span class="font-mono-metric-sm text-mono-metric-sm text-on-surface-variant font-medium tracking-tight">WASAPI • 48 kHz • 24-bit • 64 spls (1.3ms)</span></div></div><div class="flex items-center gap-gutter"><div class="relative flex items-center bg-surface-container-lowest px-space-sm py-space-2xs rounded shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]"><span class="material-symbols-outlined text-[16px] text-primary-fixed-dim mr-space-xs">input</span><select class="bg-transparent font-mono-metric-sm text-mono-metric-sm text-on-surface outline-none cursor-pointer pr-space-md"><option class="bg-surface-container-high text-on-surface">Default Windows Loopback</option><option class="bg-surface-container-high text-on-surface">Virtual Cable In</option><option class="bg-surface-container-high text-on-surface">Microphone In</option></select></div><button class="flex items-center gap-space-2xs px-space-sm py-space-2xs rounded bg-surface-container text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px] text-primary">lock</span><span class="font-label-caps text-label-caps tracking-wider uppercase">DSP Sync</span></button><button class="flex items-center gap-space-2xs px-space-sm py-space-2xs rounded bg-surface-container hover:bg-error-container text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined text-[16px]">volume_off</span><span class="font-label-caps text-label-caps tracking-wider uppercase">Mute</span></button><div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-sm py-space-2xs rounded shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]"><span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Master</span><div class="flex items-center gap-space-2xs h-4 w-20 bg-surface-container-high rounded-DEFAULT p-space-2xs"><div class="flex-1 h-1.5 bg-secondary rounded-DEFAULT shadow-[0_0_4px_rgba(78,222,163,0.6)]"></div><div class="w-3 h-1.5 bg-tertiary-fixed-dim rounded-DEFAULT"></div><div class="w-1.5 h-1.5 bg-error rounded-DEFAULT opacity-30"></div></div><span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-semibold">-0.2 dB</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><aside class="fixed left-0 top-16 bottom-8 w-64 bg-surface-container-low shadow-[0_1px_8px_rgba(0,0,0,0.25)] z-40 flex flex-col justify-between py-space-md"><div class="flex flex-col gap-space-md"><div class="px-space-md flex items-center justify-between"><span class="font-label-caps text-label-caps text-outline tracking-wider uppercase">Workspaces</span><span class="font-mono-metric-sm text-mono-metric-sm text-primary-fixed-dim">V2.4</span></div><nav class="flex flex-col gap-space-2xs px-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-semibold shadow-[0_0_12px_rgba(0,229,255,0.25)]"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="multi-track-matrix" href="#"><span class="material-symbols-outlined text-[18px]">grid_view</span><span class="font-body-sm text-body-sm">Multi-Track Matrix</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm rounded transition-all bg-primary-container text-on-primary-container font-semibold shadow-[0_0_12px_rgba(0,229,255,0.25)]" data-path="precision-equalizer-&amp;-analyzer" href="#"><span class="material-symbols-outlined text-[18px]">equalizer</span><span class="font-body-sm text-body-sm">Precision Equalizer &amp; Analyzer</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="dsp-fx-rack" href="#"><span class="material-symbols-outlined text-[18px]">developer_board</span><span class="font-body-sm text-body-sm">DSP FX Rack</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="audio-routing-map" href="#"><span class="material-symbols-outlined text-[18px]">alt_route</span><span class="font-body-sm text-body-sm">Audio Routing Map</span></a></nav></div><div class="px-space-md flex flex-col gap-space-xs"><div class="p-space-sm rounded bg-surface-container-lowest flex flex-col gap-space-2xs"><div class="flex justify-between items-center"><span class="font-label-caps text-label-caps text-outline uppercase">Clock Source</span><span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-medium">Internal</span></div><div class="flex justify-between items-center"><span class="font-label-caps text-label-caps text-outline uppercase">Jitter / Sync</span><span class="font-mono-metric-sm text-mono-metric-sm text-primary font-medium">&lt; 0.02 ps</span></div></div></div></aside><div class="pl-64"><main class="w-full min-h-[calc(100vh-6rem)] pt-16 pb-8 bg-surface px-margin-desktop"><div class="flex flex-col w-full gap-space-md">
+<!-- Precision Equalizer Top Control Surface -->
+<section class="w-full bg-surface-container-low rounded-xl p-space-md shadow-md flex flex-wrap items-center justify-between gap-gutter-md">
+<!-- Left: Target Routing & Calibration Mode -->
+<div class="flex flex-wrap items-center gap-space-md">
+<!-- Target Device Selector -->
+<div class="flex flex-col gap-space-2xs">
+<label class="font-label-caps text-label-caps text-outline uppercase tracking-wider flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-[14px] text-primary">speaker</span> Output Destination
+        </label>
+<div class="relative flex items-center bg-surface-container-lowest px-space-sm py-space-xs rounded shadow-inner">
+<select class="bg-transparent font-mono-metric-sm text-mono-metric-sm text-on-surface outline-none cursor-pointer pr-space-lg appearance-none" id="targetDevice">
+<option class="bg-surface-container-high text-on-surface">Studio Monitors (USB DAC - ASIO 32-bit)</option>
+<option class="bg-surface-container-high text-on-surface">Reference Open-Back Headphones (600 Ohm)</option>
+<option class="bg-surface-container-high text-on-surface">Nearfield B-Monitors (Aux 3/4)</option>
+<option class="bg-surface-container-high text-on-surface">Digital SPDIF Master Loopback</option>
+</select>
+<span class="material-symbols-outlined absolute right-space-xs text-[16px] pointer-events-none text-outline">unfold_more</span>
+</div>
+</div>
+<!-- Vertical Divider -->
+<div class="hidden sm:block h-8 w-px bg-surface-container-highest"></div>
+<!-- Filter Band Mode Segmented Control -->
+<div class="flex flex-col gap-space-2xs">
+<label class="font-label-caps text-label-caps text-outline uppercase tracking-wider flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-[14px] text-secondary">tune</span> Engine Topology
+        </label>
+<div class="inline-flex p-space-2xs bg-surface-container-lowest rounded shadow-inner" id="bandModeSelector">
+<button class="band-mode-btn px-space-md py-space-2xs rounded font-label-caps text-label-caps uppercase transition-all bg-surface-container-high text-primary shadow-[0_0_8px_rgba(0,229,255,0.25)]" data-mode="10" type="button">
+            10-Band Graphic (31Hz - 16kHz)
+          </button>
+<button class="band-mode-btn px-space-md py-space-2xs rounded font-label-caps text-label-caps uppercase transition-all text-on-surface-variant hover:text-on-surface" data-mode="20" type="button">
+            20-Band Precision (20Hz - 20kHz)
+          </button>
+</div>
+</div>
+</div>
+<!-- Right: Preset Bank & Snapshot Actions -->
+<div class="flex flex-wrap items-center gap-space-md ml-auto">
+<!-- Preset Dropdown -->
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">Acoustic Preset</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-semibold">Matched Linear Phase</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<div class="relative flex items-center bg-surface-container-lowest px-space-sm py-space-xs rounded shadow-inner">
+<span class="material-symbols-outlined text-[15px] text-tertiary-fixed-dim mr-space-2xs">auto_fix_high</span>
+<select class="bg-transparent font-mono-metric-sm text-mono-metric-sm text-on-surface outline-none cursor-pointer pr-space-lg appearance-none" id="presetSelect">
+<option class="bg-surface-container-high text-on-surface" selected="" value="custom">Custom Mastering</option>
+<option class="bg-surface-container-high text-on-surface" value="bass">Bass Boost (Warm Sub)</option>
+<option class="bg-surface-container-high text-on-surface" value="vocal">Vocal Clarity (Presence Lift)</option>
+<option class="bg-surface-container-high text-on-surface" value="flat">Acoustic Flat (Reference)</option>
+<option class="bg-surface-container-high text-on-surface" value="loudness">Loudness Contour (Fletcher-Munson)</option>
+</select>
+<span class="material-symbols-outlined absolute right-space-xs text-[16px] pointer-events-none text-outline">expand_more</span>
+</div>
+<button class="flex items-center justify-center w-8 h-8 rounded bg-surface-container-high text-on-surface hover:text-primary hover:bg-surface-container-highest transition-colors" id="savePresetBtn" title="Save Active Curve Profile">
+<span class="material-symbols-outlined text-[16px]">save</span>
+</button>
+<button class="flex items-center justify-center w-8 h-8 rounded bg-surface-container-high text-on-surface hover:text-error hover:bg-error-container transition-colors" id="resetCurveBtn" title="Reset All Bands to 0.0 dB">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span>
+</button>
+</div>
+</div>
+<!-- Quick Toggles -->
+<div class="flex items-center gap-space-2xs pl-space-xs">
+<button class="flex items-center gap-space-2xs px-space-md py-space-xs rounded bg-surface-container-highest text-secondary shadow-[0_0_8px_rgba(78,222,163,0.2)] hover:shadow-[0_0_12px_rgba(78,222,163,0.35)] transition-all" id="bypassBtn">
+<span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_6px_rgba(78,222,163,0.9)] animate-pulse"></span>
+<span class="font-label-caps text-label-caps uppercase font-bold">EQ In</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Interactive Real-time Spectrum Analyzer & Oscilloscope Canvas -->
+<section class="relative w-full bg-surface-container-lowest rounded-xl overflow-hidden shadow-xl p-space-sm flex flex-col">
+<!-- Viewport Status bar & Readout Header -->
+<div class="flex items-center justify-between px-space-sm py-space-xs z-20">
+<div class="flex items-center gap-space-md">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-wider flex items-center gap-space-xs">
+<span class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_6px_rgba(0,229,255,0.8)]"></span>
+          FFT RTA 4096-Pt • Real-Time Dual Spectrum
+        </span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-on-surface-variant hidden md:inline">
+          Curve: <span class="text-primary font-semibold">Min-Phase IIR</span>
+</span>
+</div>
+<div class="flex items-center gap-space-md">
+<!-- Telemetry Legend -->
+<div class="flex items-center gap-space-sm text-mono-metric-sm font-mono-metric-sm">
+<span class="flex items-center gap-space-2xs text-primary">
+<span class="w-2.5 h-0.5 bg-primary shadow-[0_0_4px_rgba(0,229,255,0.8)]"></span> EQ Response
+          </span>
+<span class="flex items-center gap-space-2xs text-secondary">
+<span class="w-2.5 h-0.5 bg-secondary shadow-[0_0_4px_rgba(78,222,163,0.8)]"></span> RMS Energy
+          </span>
+<span class="flex items-center gap-space-2xs text-primary-fixed-dim">
+<span class="w-1.5 h-2 bg-primary-fixed-dim/60"></span> FFT Peak
+          </span>
+</div>
+<div class="h-3 w-px bg-surface-container-highest"></div>
+<!-- Dynamic Hover Point Telemetry -->
+<div class="bg-surface-container-high px-space-sm py-space-2xs rounded flex items-center gap-space-sm" id="telemetryBadge">
+<span class="font-label-caps text-label-caps text-outline uppercase">Cursor</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-primary font-semibold" id="cursorFreq">1,000 Hz</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-semibold" id="cursorGain">+0.0 dB</span>
+</div>
+</div>
+</div>
+<!-- Main Dynamic Visualizer Window -->
+<div class="relative w-full h-[320px] lg:h-[380px] bg-surface-container-lowest rounded overflow-hidden cursor-crosshair select-none" id="visualizerContainer">
+<!-- Decibel Grid Lines (Horizontal) -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none px-space-xs py-space-2xs text-mono-metric-sm font-mono-metric-sm text-outline/40">
+<div class="flex justify-between items-center w-full"><span class="bg-surface-container-lowest/80 px-1 rounded">+12 dB</span><div class="flex-1 h-px bg-surface-container-highest/30 mx-2"></div><span>+12 dB</span></div>
+<div class="flex justify-between items-center w-full"><span class="bg-surface-container-lowest/80 px-1 rounded">+6 dB</span><div class="flex-1 h-px bg-surface-container-highest/20 mx-2"></div><span>+6 dB</span></div>
+<div class="flex justify-between items-center w-full text-outline-variant"><span class="bg-surface-container-lowest/80 px-1 rounded text-primary/70">0 dB (Detent)</span><div class="flex-1 h-px bg-primary/25 mx-2"></div><span class="text-primary/70">0 dB</span></div>
+<div class="flex justify-between items-center w-full"><span class="bg-surface-container-lowest/80 px-1 rounded">-6 dB</span><div class="flex-1 h-px bg-surface-container-highest/20 mx-2"></div><span>-6 dB</span></div>
+<div class="flex justify-between items-center w-full"><span class="bg-surface-container-lowest/80 px-1 rounded">-12 dB</span><div class="flex-1 h-px bg-surface-container-highest/30 mx-2"></div><span>-12 dB</span></div>
+</div>
+<!-- Frequency Grid Markers (Vertical) -->
+<div class="absolute inset-0 flex justify-between pointer-events-none px-6 py-2 text-mono-metric-sm font-mono-metric-sm text-outline/35">
+<div class="flex flex-col justify-between items-center h-full"><div class="w-px h-full bg-surface-container-highest/20"></div><span>31</span></div>
+<div class="flex flex-col justify-between items-center h-full"><div class="w-px h-full bg-surface-container-highest/20"></div><span>63</span></div>
+<div class="flex flex-col justify-between items-center h-full"><div class="w-px h-full bg-surface-container-highest/20"></div><span>125</span></div>
+<div class="flex flex-col justify-between items-center h-full"><div class="w-px h-full bg-surface-container-highest/20"></div><span>250</span></div>
+<div class="flex flex-col justify-between items-center h-full"><div class="w-px h-full bg-surface-container-highest/20"></div><span>500</span></div>
+<div class="flex flex-col justify-between items-center h-full"><div class="w-px h-full bg-surface-container-highest/20"></div><span>1k</span></div>
+<div class="flex flex-col justify-between items-center h-full"><div class="w-px h-full bg-surface-container-highest/20"></div><span>2k</span></div>
+<div class="flex flex-col justify-between items-center h-full"><div class="w-px h-full bg-surface-container-highest/20"></div><span>4k</span></div>
+<div class="flex flex-col justify-between items-center h-full"><div class="w-px h-full bg-surface-container-highest/20"></div><span>8k</span></div>
+<div class="flex flex-col justify-between items-center h-full"><div class="w-px h-full bg-surface-container-highest/20"></div><span>16k</span></div>
+</div>
+<!-- Live Canvas Engine for FFT bars, RMS, Glow, and EQ Spline -->
+<canvas class="absolute inset-0 w-full h-full block" id="dspCanvas"></canvas>
+<!-- Parametric Interactive Filter Nodes Overlay -->
+<div class="absolute inset-0 pointer-events-auto" id="interactiveNodeLayer">
+<!-- Interactive Handles dynamically mapped via JS -->
+</div>
+</div>
+<!-- Analyzer Control Footer Micro-Bar -->
+<div class="flex items-center justify-between px-space-sm pt-space-xs text-mono-metric-sm font-mono-metric-sm text-outline">
+<div class="flex items-center gap-space-md">
+<span>FFT Smoothing: <strong class="text-on-surface">1/12 Oct</strong></span>
+<span>Attack: <strong class="text-on-surface">2.4 ms</strong></span>
+<span>Release: <strong class="text-on-surface">140 ms</strong></span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="flex items-center gap-space-2xs text-tertiary-fixed-dim">
+<span class="material-symbols-outlined text-[13px]">warning_amber</span> True-Peak Ceiling: -0.1 dBTP
+        </span>
+</div>
+</div>
+</section>
+<!-- High-Precision Filter Controls: Low-Cut / High-Cut Slopes -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-gutter-md">
+<!-- Low Cut Module -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-space-md">
+<div class="w-9 h-9 rounded bg-surface-container-high flex items-center justify-center text-primary shadow-inner">
+<span class="material-symbols-outlined text-[20px]">horizontal_split</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface leading-tight">High-Pass / Low-Cut</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline">Sub-bass rumble filtration</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex flex-col items-end gap-space-2xs">
+<span class="font-label-caps text-label-caps text-outline uppercase">Corner Freq</span>
+<span class="font-mono-metric-md text-mono-metric-md text-primary font-bold">24 Hz</span>
+</div>
+<div class="flex p-space-2xs bg-surface-container-lowest rounded shadow-inner">
+<button class="px-space-sm py-space-2xs rounded font-mono-metric-sm text-mono-metric-sm text-on-surface-variant hover:text-on-surface">12dB/oct</button>
+<button class="px-space-sm py-space-2xs rounded font-mono-metric-sm text-mono-metric-sm bg-primary-container text-on-primary-container font-semibold shadow-[0_0_8px_rgba(0,229,255,0.3)]">24dB/oct</button>
+</div>
+</div>
+</div>
+<!-- High Cut Module -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-space-md">
+<div class="w-9 h-9 rounded bg-surface-container-high flex items-center justify-center text-primary-fixed-dim shadow-inner">
+<span class="material-symbols-outlined text-[20px]">trending_flat</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface leading-tight">Low-Pass / High-Cut</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline">Ultrasonic alias suppression</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex flex-col items-end gap-space-2xs">
+<span class="font-label-caps text-label-caps text-outline uppercase">Corner Freq</span>
+<span class="font-mono-metric-md text-mono-metric-md text-primary font-bold">18.5 kHz</span>
+</div>
+<div class="flex p-space-2xs bg-surface-container-lowest rounded shadow-inner">
+<button class="px-space-sm py-space-2xs rounded font-mono-metric-sm text-mono-metric-sm bg-primary-container text-on-primary-container font-semibold shadow-[0_0_8px_rgba(0,229,255,0.3)]">12dB/oct</button>
+<button class="px-space-sm py-space-2xs rounded font-mono-metric-sm text-mono-metric-sm text-on-surface-variant hover:text-on-surface">24dB/oct</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Calibrated Vertically Aligned Slider Bank -->
+<section class="w-full bg-surface-container-low rounded-xl p-space-md shadow-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">equalizer</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">Parametric &amp; Graphic Frequency Calibration Bank</h2>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-caps text-label-caps text-outline uppercase">Range:</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-on-surface font-semibold bg-surface-container-lowest px-2 py-0.5 rounded">-12.0 dB ... +12.0 dB</span>
+</div>
+</div>
+<!-- Sliders Container -->
+<div class="w-full overflow-x-auto pb-space-xs">
+<div class="min-w-[840px] flex items-stretch justify-between gap-space-xs p-space-sm bg-surface-container-lowest rounded-xl shadow-inner" id="sliderBankRack">
+<!-- Dynamically rendered sliders will be placed here -->
+</div>
+</div>
+</section>
+<!-- Mastering Reference Acoustics & Monitoring Context Card -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-gutter-md">
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-caps text-label-caps text-outline uppercase">Phase Coherence</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-semibold">+0.94 r</span>
+</div>
+<div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden flex">
+<div class="w-[94%] bg-secondary shadow-[0_0_8px_rgba(78,222,163,0.8)] h-full"></div>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-space-sm">Zero group delay distortion across midrange crossover network.</span>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-caps text-label-caps text-outline uppercase">THD+N Harmonic Purity</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-primary font-semibold">&lt; 0.00018%</span>
+</div>
+<div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden flex">
+<div class="w-[98%] bg-primary shadow-[0_0_8px_rgba(0,229,255,0.7)] h-full"></div>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-space-sm">Double-precision 64-bit IEEE float math with noise-shaped dither.</span>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-caps text-label-caps text-outline uppercase">Dynamic Crest Factor</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-tertiary-fixed-dim font-semibold">14.2 LUFS</span>
+</div>
+<div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden flex">
+<div class="w-[68%] bg-tertiary-fixed-dim shadow-[0_0_8px_rgba(255,185,95,0.7)] h-full"></div>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-space-sm">Calibrated ITU-R BS.1770-4 compliant loudness weighting filter.</span>
+</div>
+</section>
+</div>
+<script>
+  (function () {
+    // Standard Band Data
+    const bands10 = [
+      { id: 'b0', freq: '31Hz', hz: 31, gain: 2.4, q: 1.41 },
+      { id: 'b1', freq: '63Hz', hz: 63, gain: 3.8, q: 1.41 },
+      { id: 'b2', freq: '125Hz', hz: 125, gain: 1.2, q: 1.41 },
+      { id: 'b3', freq: '250Hz', hz: 250, gain: -1.5, q: 1.41 },
+      { id: 'b4', freq: '500Hz', hz: 500, gain: -0.8, q: 1.41 },
+      { id: 'b5', freq: '1kHz', hz: 1000, gain: 0.0, q: 1.41 },
+      { id: 'b6', freq: '2kHz', hz: 2000, gain: 1.8, q: 1.41 },
+      { id: 'b7', freq: '4kHz', hz: 4000, gain: 3.2, q: 1.41 },
+      { id: 'b8', freq: '8kHz', hz: 8000, gain: 2.1, q: 1.41 },
+      { id: 'b9', freq: '16kHz', hz: 16000, gain: 4.0, q: 1.41 }
+    ];
+
+    const presets = {
+      custom: [2.4, 3.8, 1.2, -1.5, -0.8, 0.0, 1.8, 3.2, 2.1, 4.0],
+      bass: [6.5, 5.2, 3.1, 0.8, -0.5, -0.8, 0.0, 0.5, 0.2, 0.0],
+      vocal: [-2.0, -1.0, 0.0, 0.5, 1.8, 3.4, 3.8, 2.5, 1.5, 0.8],
+      flat: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+      loudness: [4.8, 3.5, 1.0, -1.2, -1.8, -1.5, 0.0, 1.6, 3.2, 4.5]
+    };
+
+    let activeBands = JSON.parse(JSON.stringify(bands10));
+    let isBypassed = false;
+    let soloBandIndex = null;
+
+    const canvas = document.getElementById('dspCanvas');
+    const container = document.getElementById('visualizerContainer');
+    const ctx = canvas.getContext('2d');
+    const sliderBank = document.getElementById('sliderBankRack');
+    const interactiveNodeLayer = document.getElementById('interactiveNodeLayer');
+    const telemetryCursorFreq = document.getElementById('cursorFreq');
+    const telemetryCursorGain = document.getElementById('cursorGain');
+
+    // High DPI Canvas Scaling
+    function resizeCanvas() {
+      const rect = container.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.resetTransform();
+      ctx.scale(dpr, dpr);
+    }
+
+    // Build Calibrated Slider Rack
+    function renderSliders() {
+      sliderBank.innerHTML = '';
+      activeBands.forEach((band, index) => {
+        const isSolo = soloBandIndex === index;
+        const col = document.createElement('div');
+        col.className = 'flex-1 flex flex-col items-center justify-between bg-surface-container-low/70 hover:bg-surface-container-high/60 transition-colors p-space-xs rounded-lg select-none min-w-[64px]';
+        col.innerHTML = `
+          <!-- Numeric Gain Readout -->
+          <div class="w-full flex items-center justify-center">
+            <span id="readout-${index}" class="font-mono-metric-sm text-mono-metric-sm ${band.gain > 0 ? 'text-primary' : band.gain < 0 ? 'text-tertiary-fixed-dim' : 'text-outline'} font-semibold">
+              ${band.gain > 0 ? '+' : ''}${band.gain.toFixed(1)} dB
+            </span>
+          </div>
+
+          <!-- Q Factor Rotator Mini Indicator -->
+          <div class="flex items-center gap-space-2xs mt-1 text-mono-metric-sm font-mono-metric-sm text-outline">
+            <span class="text-[9px]">Q</span>
+            <span id="qval-${index}" class="text-[10px] text-on-surface">${band.q.toFixed(2)}</span>
+          </div>
+
+          <!-- Vertical Recessed Fader Track -->
+          <div class="relative w-8 h-48 my-2 flex items-center justify-center">
+            <!-- Center 0 dB Detent Mark -->
+            <div class="absolute w-6 h-px bg-outline/40 pointer-events-none z-10 top-1/2 -translate-y-1/2"></div>
+            <!-- Groove Track -->
+            <div class="absolute w-2 h-full bg-surface-container-lowest rounded-full overflow-hidden shadow-inner flex flex-col justify-end">
+              <div id="track-fill-${index}" class="w-full bg-primary/40 rounded-full transition-all" style="height: ${((band.gain + 12) / 24) * 100}%;"></div>
+            </div>
+            <!-- Range Slider Input (Rotated/Custom Styled) -->
+            <input type="range" min="-12" max="12" step="0.1" value="${band.gain}" data-index="${index}" class="eq-slider absolute w-48 h-8 opacity-0 cursor-pointer -rotate-90 z-20" />
+            <!-- Custom Metallic Slider Cap Handle -->
+            <div id="thumb-${index}" class="absolute w-6 h-3 bg-surface-container-highest rounded border-t border-white/20 shadow-[0_2px_4px_rgba(0,0,0,0.8)] pointer-events-none flex items-center justify-center transition-transform" style="bottom: calc(${((band.gain + 12) / 24) * 100}% - 6px);">
+              <div class="w-3 h-0.5 ${band.gain !== 0 ? 'bg-primary shadow-[0_0_6px_rgba(0,229,255,0.9)]' : 'bg-outline'}"></div>
+            </div>
+          </div>
+
+          <!-- Solo Button -->
+          <button data-solo="${index}" class="solo-btn px-space-xs py-space-2xs rounded w-full text-center font-label-caps text-[9px] uppercase transition-all ${isSolo ? 'bg-secondary text-on-secondary font-bold shadow-[0_0_8px_rgba(78,222,163,0.6)]' : 'bg-surface-container text-outline hover:text-on-surface'}">
+            Solo
+          </button>
+
+          <!-- Frequency Band Identity -->
+          <div class="mt-2 text-center">
+            <span class="font-mono-metric-sm text-mono-metric-sm text-on-surface font-bold tracking-tight">${band.freq}</span>
+          </div>
+        `;
+        sliderBank.appendChild(col);
+      });
+
+      // Bind Slider Events
+      sliderBank.querySelectorAll('.eq-slider').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const idx = parseInt(e.target.dataset.index, 10);
+          const val = parseFloat(e.target.value);
+          activeBands[idx].gain = val;
+          updateBandUI(idx);
+          renderNodes();
+        });
+
+        // Double Click / Ctrl-Click resets to 0.0 dB
+        input.addEventListener('dblclick', (e) => {
+          const idx = parseInt(e.target.dataset.index, 10);
+          activeBands[idx].gain = 0.0;
+          e.target.value = 0.0;
+          updateBandUI(idx);
+          renderNodes();
+        });
+      });
+
+      // Bind Solo Events
+      sliderBank.querySelectorAll('.solo-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(btn.dataset.solo, 10);
+          soloBandIndex = soloBandIndex === idx ? null : idx;
+          renderSliders();
+        });
+      });
+    }
+
+    function updateBandUI(idx) {
+      const band = activeBands[idx];
+      const readout = document.getElementById(`readout-${idx}`);
+      const thumb = document.getElementById(`thumb-${idx}`);
+      const trackFill = document.getElementById(`track-fill-${idx}`);
+      const pct = ((band.gain + 12) / 24) * 100;
+
+      if (readout) {
+        readout.textContent = `${band.gain > 0 ? '+' : ''}${band.gain.toFixed(1)} dB`;
+        readout.className = `font-mono-metric-sm text-mono-metric-sm ${band.gain > 0 ? 'text-primary' : band.gain < 0 ? 'text-tertiary-fixed-dim' : 'text-outline'} font-semibold`;
+      }
+      if (thumb) {
+        thumb.style.bottom = `calc(${pct}% - 6px)`;
+        const tick = thumb.firstElementChild;
+        if (tick) {
+          tick.className = `w-3 h-0.5 ${band.gain !== 0 ? 'bg-primary shadow-[0_0_6px_rgba(0,229,255,0.9)]' : 'bg-outline'}`;
+        }
+      }
+      if (trackFill) {
+        trackFill.style.height = `${pct}%`;
+      }
+    }
+
+    // Interactive Nodes in Canvas Viewport
+    function renderNodes() {
+      interactiveNodeLayer.innerHTML = '';
+      const rect = container.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+
+      activeBands.forEach((band, idx) => {
+        // Logarithmic X coordinate approximation across 20Hz - 20kHz
+        const minLog = Math.log10(20);
+        const maxLog = Math.log10(20000);
+        const bandLog = Math.log10(band.hz);
+        const normX = (bandLog - minLog) / (maxLog - minLog);
+        const x = normX * (w - 60) + 30;
+
+        // Gain Y mapping (-12dB to +12dB)
+        const normY = (band.gain + 12) / 24;
+        const y = h - (normY * (h - 60) + 30);
+
+        const node = document.createElement('div');
+        node.className = 'absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-grab active:cursor-grabbing';
+        node.style.left = `${x}px`;
+        node.style.top = `${y}px`;
+
+        node.innerHTML = `
+          <!-- Q-Factor ring representation -->
+          <div class="relative w-7 h-7 rounded-full flex items-center justify-center transition-all bg-surface-container-high/60 group-hover:bg-surface-container-high border-0 shadow-[0_0_8px_rgba(0,229,255,0.4)]">
+            <div class="w-3 h-3 rounded-full ${band.gain !== 0 ? 'bg-primary shadow-[0_0_8px_rgba(0,229,255,0.9)]' : 'bg-outline'}"></div>
+            <div class="absolute inset-0 rounded-full border border-primary/40 group-hover:border-primary scale-100 group-hover:scale-125 transition-transform pointer-events-none"></div>
+          </div>
+          <!-- Node Badge Floating readout -->
+          <div class="opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity bg-surface-container-lowest/95 backdrop-blur-md px-1.5 py-0.5 rounded shadow-lg flex items-center gap-1 mt-1 z-30">
+            <span class="font-mono-metric-sm text-[10px] text-primary font-bold">${band.freq}</span>
+            <span class="font-mono-metric-sm text-[10px] text-on-surface">${band.gain > 0 ? '+' : ''}${band.gain.toFixed(1)}dB</span>
+          </div>
+        `;
+
+        // Direct Node Vertical Drag Event Handler
+        node.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          const startY = e.clientY;
+          const initialGain = band.gain;
+
+          function onMouseMove(moveEvent) {
+            const dy = startY - moveEvent.clientY;
+            let newGain = initialGain + (dy / (h * 0.4)) * 12;
+            newGain = Math.max(-12, Math.min(12, newGain));
+            band.gain = Math.round(newGain * 10) / 10;
+
+            // Reflect on slider
+            const slider = sliderBank.querySelector(`.eq-slider[data-index="${idx}"]`);
+            if (slider) slider.value = band.gain;
+            updateBandUI(idx);
+            renderNodes();
+          }
+
+          function onMouseUp() {
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
+          }
+
+          window.addEventListener('mousemove', onMouseMove);
+          window.addEventListener('mouseup', onMouseUp);
+        });
+
+        interactiveNodeLayer.appendChild(node);
+      });
+    }
+
+    // Synthetic Audio Signal Animation Generator
+    let time = 0;
+    const fftBarsCount = 72;
+    const fftData = new Float32Array(fftBarsCount);
+    const rmsPoints = 48;
+
+    function renderAudioVisualizer() {
+      time += 0.035;
+      const rect = container.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      if (!isBypassed) {
+        // 1. FFT Energy Bars (Electric Cyan Luminescence)
+        const barWidth = (w / fftBarsCount);
+        for (let i = 0; i < fftBarsCount; i++) {
+          const freqBias = Math.sin((i / fftBarsCount) * Math.PI);
+          const noise = Math.sin(time * 2.8 + i * 0.45) * 0.3 + Math.cos(time * 1.4 - i * 0.25) * 0.25;
+          const rawAmp = Math.max(0.05, Math.min(0.92, (freqBias * 0.6) + noise + 0.15));
+
+          // Smooth low-pass decay
+          fftData[i] = fftData[i] * 0.8 + rawAmp * 0.2;
+          const barHeight = fftData[i] * (h * 0.75);
+          const x = i * barWidth;
+          const y = h - barHeight;
+
+          const grad = ctx.createLinearGradient(0, y, 0, h);
+          grad.addColorStop(0, 'rgba(0, 229, 255, 0.45)');
+          grad.addColorStop(0.7, 'rgba(0, 229, 255, 0.12)');
+          grad.addColorStop(1, 'rgba(0, 229, 255, 0.01)');
+
+          ctx.fillStyle = grad;
+          ctx.fillRect(x + 1, y, barWidth - 2, barHeight);
+
+          // Peak Cap Line
+          ctx.fillStyle = 'rgba(195, 245, 255, 0.75)';
+          ctx.fillRect(x + 1, y, barWidth - 2, 1.5);
+        }
+
+        // 2. RMS Energy Dynamic Envelope (Green Overlay)
+        ctx.beginPath();
+        for (let j = 0; j <= rmsPoints; j++) {
+          const rx = (j / rmsPoints) * w;
+          const normIdx = Math.floor((j / rmsPoints) * fftBarsCount);
+          const baseline = fftData[normIdx] || 0.3;
+          const ry = h - (baseline * (h * 0.62) + Math.sin(time * 3 + j * 0.6) * 12);
+          if (j === 0) ctx.moveTo(rx, ry);
+          else ctx.lineTo(rx, ry);
+        }
+        ctx.strokeStyle = 'rgba(78, 222, 163, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 3. Composite EQ Filter Curve (Smooth Neon Blue Spline)
+        ctx.save();
+        ctx.beginPath();
+        const minLog = Math.log10(20);
+        const maxLog = Math.log10(20000);
+
+        const curvePoints = [];
+        const resolution = 160;
+
+        for (let c = 0; c <= resolution; c++) {
+          const px = (c / resolution) * w;
+          const currentLog = minLog + (c / resolution) * (maxLog - minLog);
+          const currentHz = Math.pow(10, currentLog);
+
+          // Compute summed bell filters gain at currentHz
+          let netGain = 0;
+          activeBands.forEach((b, bIdx) => {
+            if (soloBandIndex !== null && soloBandIndex !== bIdx) return;
+            const diffOct = Math.log2(currentHz / b.hz);
+            const bandwidth = 1.0 / b.q;
+            const response = Math.exp(-0.5 * Math.pow(diffOct / (bandwidth * 0.5), 2));
+            netGain += b.gain * response;
+          });
+
+          const normY = (netGain + 12) / 24;
+          const py = h - (normY * (h - 60) + 30);
+          curvePoints.push({ x: px, y: py });
+        }
+
+        // Draw Spline
+        if (curvePoints.length > 0) {
+          ctx.moveTo(curvePoints[0].x, curvePoints[0].y);
+          for (let p = 1; p < curvePoints.length - 1; p++) {
+            const xc = (curvePoints[p].x + curvePoints[p + 1].x) / 2;
+            const yc = (curvePoints[p].y + curvePoints[p + 1].y) / 2;
+            ctx.quadraticCurveTo(curvePoints[p].x, curvePoints[p].y, xc, yc);
+          }
+          ctx.lineTo(curvePoints[curvePoints.length - 1].x, curvePoints[curvePoints.length - 1].y);
+
+          // Glowing EQ Filter Stroke
+          ctx.shadowColor = '#00daf3';
+          ctx.shadowBlur = 12;
+          ctx.strokeStyle = '#c3f5ff';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+
+          // Sub-curve Gradient fill
+          ctx.lineTo(w, h);
+          ctx.lineTo(0, h);
+          ctx.closePath();
+          const curveGrad = ctx.createLinearGradient(0, 0, 0, h);
+          curveGrad.addColorStop(0, 'rgba(0, 229, 255, 0.22)');
+          curveGrad.addColorStop(0.5, 'rgba(0, 229, 255, 0.08)');
+          curveGrad.addColorStop(1, 'transparent');
+          ctx.fillStyle = curveGrad;
+          ctx.fill();
+        }
+        ctx.restore();
+      } else {
+        // Flat line when bypassed
+        ctx.beginPath();
+        ctx.moveTo(0, h / 2);
+        ctx.lineTo(w, h / 2);
+        ctx.strokeStyle = '#849396';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      requestAnimationFrame(renderAudioVisualizer);
+    }
+
+    // Visualizer Mouse Tracker for Telemetry Header
+    container.addEventListener('mousemove', (e) => {
+      const rect = container.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      const normX = Math.max(0, Math.min(1, mx / rect.width));
+      const minLog = Math.log10(20);
+      const maxLog = Math.log10(20000);
+      const freqHz = Math.round(Math.pow(10, minLog + normX * (maxLog - minLog)));
+
+      const normY = Math.max(0, Math.min(1, 1 - (my / rect.height)));
+      const gainDb = ((normY * 24) - 12).toFixed(1);
+
+      telemetryCursorFreq.textContent = freqHz >= 1000 ? `${(freqHz / 1000).toFixed(2)} kHz` : `${freqHz} Hz`;
+      telemetryCursorGain.textContent = `${gainDb > 0 ? '+' : ''}${gainDb} dB`;
+    });
+
+    // Preset Switching
+    const presetSelect = document.getElementById('presetSelect');
+    presetSelect.addEventListener('change', (e) => {
+      const profile = presets[e.target.value];
+      if (profile) {
+        activeBands.forEach((band, i) => {
+          band.gain = profile[i] !== undefined ? profile[i] : 0.0;
+          const slider = sliderBank.querySelector(`.eq-slider[data-index="${i}"]`);
+          if (slider) slider.value = band.gain;
+          updateBandUI(i);
+        });
+        renderNodes();
+      }
+    });
+
+    // Bypass Button Action
+    const bypassBtn = document.getElementById('bypassBtn');
+    bypassBtn.addEventListener('click', () => {
+      isBypassed = !isBypassed;
+      if (isBypassed) {
+        bypassBtn.className = 'flex items-center gap-space-2xs px-space-md py-space-xs rounded bg-surface-container text-outline hover:text-on-surface transition-all';
+        bypassBtn.innerHTML = `
+          <span class="w-2 h-2 rounded-full bg-outline"></span>
+          <span class="font-label-caps text-label-caps uppercase font-bold">Bypassed</span>
+        `;
+      } else {
+        bypassBtn.className = 'flex items-center gap-space-2xs px-space-md py-space-xs rounded bg-surface-container-highest text-secondary shadow-[0_0_8px_rgba(78,222,163,0.2)] hover:shadow-[0_0_12px_rgba(78,222,163,0.35)] transition-all';
+        bypassBtn.innerHTML = `
+          <span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_6px_rgba(78,222,163,0.9)] animate-pulse"></span>
+          <span class="font-label-caps text-label-caps uppercase font-bold">EQ In</span>
+        `;
+      }
+    });
+
+    // Reset Curve Button
+    document.getElementById('resetCurveBtn').addEventListener('click', () => {
+      activeBands.forEach((band, i) => {
+        band.gain = 0.0;
+        const slider = sliderBank.querySelector(`.eq-slider[data-index="${i}"]`);
+        if (slider) slider.value = 0.0;
+        updateBandUI(i);
+      });
+      presetSelect.value = 'flat';
+      renderNodes();
+    });
+
+    // Save Preset Quick Feedback
+    const savePresetBtn = document.getElementById('savePresetBtn');
+    savePresetBtn.addEventListener('click', () => {
+      savePresetBtn.classList.add('text-secondary');
+      setTimeout(() => savePresetBtn.classList.remove('text-secondary'), 800);
+    });
+
+    // Segmented Mode Selector Button Feedback
+    document.querySelectorAll('.band-mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.band-mode-btn').forEach(b => {
+          b.className = 'band-mode-btn px-space-md py-space-2xs rounded font-label-caps text-label-caps uppercase transition-all text-on-surface-variant hover:text-on-surface';
+        });
+        btn.className = 'band-mode-btn px-space-md py-space-2xs rounded font-label-caps text-label-caps uppercase transition-all bg-surface-container-high text-primary shadow-[0_0_8px_rgba(0,229,255,0.25)]';
+      });
+    });
+
+    // Window Resize Observer for Fluid DSP Visualization
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      renderNodes();
+    });
+
+    // Initial Bootstrap
+    resizeCanvas();
+    renderSliders();
+    renderNodes();
+    renderAudioVisualizer();
+  })();
+</script></main></div><footer class="fixed bottom-0 left-0 right-0 h-8 bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_-1px_6px_rgba(0,0,0,0.5)] z-50 px-margin-desktop flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-2xs"><span class="w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_4px_rgba(78,222,163,0.8)]"></span><span class="font-mono-metric-sm text-mono-metric-sm text-on-surface">Loopback: Active -&gt; Virtual Output Sink</span></div><div class="h-3 w-px bg-surface-container-highest"></div><div class="flex items-center gap-space-2xs"><span class="material-symbols-outlined text-[14px] text-primary">timer</span><span class="font-mono-metric-sm text-mono-metric-sm text-on-surface-variant">DSP Latency &amp; Underruns: <span class="text-secondary font-semibold">0 dropouts</span></span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs"><span class="font-label-caps text-label-caps text-outline uppercase">Engine Load</span><div class="w-16 h-1.5 bg-surface-container-high rounded-DEFAULT overflow-hidden"><div class="h-full w-[8%] bg-secondary shadow-[0_0_4px_rgba(78,222,163,0.8)]"></div></div><span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-semibold">1.2%</span></div><div class="h-3 w-px bg-surface-container-highest"></div><span class="font-mono-metric-sm text-mono-metric-sm text-outline">SonicForge Core v2.4.12-x64</span></div></footer></body></html>

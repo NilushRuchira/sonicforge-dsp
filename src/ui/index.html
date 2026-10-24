@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SonicForge DSP - Windows Audio Matrix & DSP Control Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface": "#0F1117",
+            "surface-container-lowest": "#0C0E14",
+            "surface-container-low": "#181B24",
+            "surface-container": "#1E222D",
+            "surface-container-high": "#262B3A",
+            "surface-container-highest": "#333A4D",
+            "surface-bright": "#3D465C",
+            "on-surface": "#E2E2EB",
+            "on-surface-variant": "#9CA3AF",
+            "outline": "#6B7280",
+            "outline-variant": "#374151",
+            "primary": "#00E5FF",
+            "primary-container": "#00B4D8",
+            "on-primary": "#002B36",
+            "primary-fixed": "#9CF0FF",
+            "primary-fixed-dim": "#00DAF3",
+            "secondary": "#10B981",
+            "secondary-container": "#059669",
+            "on-secondary": "#022C22",
+            "tertiary": "#F59E0B",
+            "tertiary-container": "#D97706",
+            "tertiary-fixed": "#FFDDB8",
+            "tertiary-fixed-dim": "#FFB95F",
+            "error": "#EF4444",
+            "error-container": "#7F1D1D",
+            "spatial-violet": "#8B5CF6",
+            "spatial-violet-container": "#6D28D9",
+          },
+          fontFamily: {
+            sans: ["Geist", "Segoe UI", "system-ui", "sans-serif"],
+            mono: ["JetBrains Mono", "Consolas", "monospace"],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @layer base {
+      html, body {
+        margin: 0; padding: 0;
+        background-color: #0F1117;
+        color: #E2E2EB;
+        font-family: 'Geist', 'Segoe UI', system-ui, sans-serif;
+        user-select: none;
+        overflow-x: hidden;
+      }
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: #0C0E14; }
+      ::-webkit-scrollbar-thumb { background: #262B3A; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: #374151; }
+    }
+    .meter-led {
+      transition: background-color 0.05s ease-out;
+    }
+    .tab-active {
+      background-color: #00E5FF !important;
+      color: #002B36 !important;
+      font-weight: 600 !important;
+      box-shadow: 0 0 14px rgba(0, 229, 255, 0.35) !important;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen selection:bg-primary selection:text-on-primary">
+
+  <!-- ===================================================================== -->
+  <!-- TOP HEADER RIBBON                                                     -->
+  <!-- ===================================================================== -->
+  <header class="fixed top-0 left-0 right-0 h-16 bg-surface-container-low/95 backdrop-blur-xl border-b border-surface-container-high/60 z-50 px-6 flex items-center justify-between shadow-lg">
+    <div class="flex items-center gap-4">
+      <div class="w-9 h-9 rounded-lg bg-surface-container-high border border-primary/30 flex items-center justify-center shadow-[0_0_12px_rgba(0,229,255,0.25)]">
+        <span class="material-symbols-outlined text-primary text-[22px]">tune</span>
+      </div>
+      <div class="flex flex-col">
+        <div class="flex items-center gap-2">
+          <span class="text-base font-bold text-on-surface tracking-tight">SonicForge DSP</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] bg-primary/10 text-primary border border-primary/20 font-mono uppercase tracking-wider">v2.4 Core</span>
+        </div>
+        <span class="text-[11px] font-mono text-outline tracking-wider uppercase">Windows 11 Fluent Studio Engine</span>
+      </div>
+      <div class="h-6 w-px bg-surface-container-highest mx-2 hidden md:block"></div>
+      <div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-md bg-surface-container-lowest border border-white/5">
+        <span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse"></span>
+        <span class="font-mono text-xs text-on-surface-variant font-medium tracking-tight" id="headerTelemetry">WASAPI • 48 kHz • 24-bit • 64 spls (1.3ms)</span>
+      </div>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center gap-3">
+      <!-- Input Capture Node -->
+      <div class="relative flex items-center bg-surface-container-lowest px-3 py-1.5 rounded-md border border-white/5">
+        <span class="material-symbols-outlined text-[16px] text-primary mr-2">sensors</span>
+        <select id="headerCaptureSelect" class="bg-transparent font-mono text-xs text-on-surface outline-none cursor-pointer pr-4" onchange="onCaptureNodeChanged(this.value)">
+          <option value="loopback" class="bg-surface-container-high text-on-surface" selected>Windows WASAPI Loopback</option>
+          <option value="virtual" class="bg-surface-container-high text-on-surface">Virtual Audio Cable In</option>
+          <option value="mic" class="bg-surface-container-high text-on-surface">Microphone / Line In</option>
+        </select>
+      </div>
+
+      <!-- DSP Master Sync Toggle -->
+      <button id="masterDspSyncBtn" onclick="toggleDspSync()" class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-surface-container border border-surface-container-high hover:border-primary/50 text-on-surface transition-all">
+        <span class="material-symbols-outlined text-[16px] text-primary" id="dspSyncIcon">lock</span>
+        <span class="text-xs font-semibold uppercase tracking-wider font-sans" id="dspSyncLabel">DSP Sync</span>
+        <span class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_6px_rgba(0,229,255,0.8)]" id="dspSyncDot"></span>
+      </button>
+
+      <!-- Master Mute Toggle -->
+      <button id="masterMuteBtn" onclick="toggleMasterMute()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-surface-container border border-surface-container-high hover:bg-error/20 hover:text-error text-on-surface-variant transition-all">
+        <span class="material-symbols-outlined text-[16px]" id="masterMuteIcon">volume_up</span>
+        <span class="text-xs font-semibold uppercase tracking-wider">Mute</span>
+      </button>
+
+      <!-- Master Stereo PPM / RMS Meter -->
+      <div class="flex items-center gap-2.5 bg-surface-container-lowest px-3 py-1.5 rounded-md border border-white/5">
+        <div class="flex flex-col items-end">
+          <span class="text-[9px] font-mono text-outline uppercase leading-none">Master</span>
+          <span class="font-mono text-xs text-secondary font-bold" id="masterPeakDisplay">-0.4 dB</span>
+        </div>
+        <!-- Stereo LED ladder -->
+        <div class="flex items-center gap-1">
+          <!-- Left Channel Strip -->
+          <div class="flex flex-col gap-[1.5px] w-2.5 h-8 bg-surface-container-high p-[1px] rounded" id="masterMeterL">
+            <div class="h-1 rounded-sm bg-error/20 meter-led" data-level="clip"></div>
+            <div class="h-1 rounded-sm bg-tertiary/20 meter-led" data-level="warm"></div>
+            <div class="h-1 rounded-sm bg-secondary meter-led" data-level="safe3"></div>
+            <div class="h-1 rounded-sm bg-secondary meter-led" data-level="safe2"></div>
+            <div class="h-1 rounded-sm bg-secondary meter-led" data-level="safe1"></div>
+            <div class="h-1 rounded-sm bg-secondary/60 meter-led" data-level="low"></div>
+          </div>
+          <!-- Right Channel Strip -->
+          <div class="flex flex-col gap-[1.5px] w-2.5 h-8 bg-surface-container-high p-[1px] rounded" id="masterMeterR">
+            <div class="h-1 rounded-sm bg-error/20 meter-led" data-level="clip"></div>
+            <div class="h-1 rounded-sm bg-tertiary/20 meter-led" data-level="warm"></div>
+            <div class="h-1 rounded-sm bg-secondary meter-led" data-level="safe3"></div>
+            <div class="h-1 rounded-sm bg-secondary meter-led" data-level="safe2"></div>
+            <div class="h-1 rounded-sm bg-secondary meter-led" data-level="safe1"></div>
+            <div class="h-1 rounded-sm bg-secondary/60 meter-led" data-level="low"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- LEFT SIDEBAR NAVIGATION                                               -->
+  <!-- ===================================================================== -->
+  <aside class="fixed left-0 top-16 bottom-8 w-64 bg-surface-container-low border-r border-surface-container-high/60 z-40 flex flex-col justify-between py-4">
+    <div class="flex flex-col gap-4">
+      <div class="px-4 flex items-center justify-between">
+        <span class="text-[10px] font-mono font-bold text-outline uppercase tracking-wider">Workspaces</span>
+        <span class="text-[11px] font-mono text-primary font-semibold">4 ACTIVE</span>
+      </div>
+      <nav class="flex flex-col gap-1 px-2" id="navTabs">
+        <button onclick="switchTab('multi-track-matrix')" class="nav-tab tab-active flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-all" data-tab="multi-track-matrix">
+          <span class="material-symbols-outlined text-[18px]">grid_view</span>
+          <span class="font-medium">Multi-Track Matrix</span>
+        </button>
+        <button onclick="switchTab('precision-equalizer')" class="nav-tab flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-tab="precision-equalizer">
+          <span class="material-symbols-outlined text-[18px]">equalizer</span>
+          <span class="font-medium">Precision Equalizer & FFT</span>
+        </button>
+        <button onclick="switchTab('dsp-fx-rack')" class="nav-tab flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-tab="dsp-fx-rack">
+          <span class="material-symbols-outlined text-[18px]">developer_board</span>
+          <span class="font-medium">DSP FX Rack</span>
+        </button>
+        <button onclick="switchTab('audio-routing-map')" class="nav-tab flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-tab="audio-routing-map">
+          <span class="material-symbols-outlined text-[18px]">alt_route</span>
+          <span class="font-medium">Audio Routing Map</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Telemetry Card Bottom -->
+    <div class="px-4 flex flex-col gap-2">
+      <div class="p-3 rounded-lg bg-surface-container-lowest border border-white/5 flex flex-col gap-2">
+        <div class="flex justify-between items-center">
+          <span class="text-[10px] font-mono text-outline uppercase">Clock Source</span>
+          <span class="text-xs font-mono text-secondary font-semibold">WASAPI Hardware</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-[10px] font-mono text-outline uppercase">Jitter / Sync</span>
+          <span class="text-xs font-mono text-primary font-semibold">&lt; 0.02 ps</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-[10px] font-mono text-outline uppercase">Active Streams</span>
+          <span class="text-xs font-mono text-tertiary font-semibold">3 Out / Parallel</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================================================================== -->
+  <!-- MAIN WORKSPACE CONTENT CONTAINER                                      -->
+  <!-- ===================================================================== -->
+  <div class="pl-64">
+    <main class="w-full min-h-[calc(100vh-6rem)] pt-20 pb-12 px-8">
+
+      <!-- ================================================================= -->
+      <!-- TAB 1: MULTI-TRACK MATRIX VIEW                                    -->
+      <!-- ================================================================= -->
+      <section id="view-multi-track-matrix" class="workspace-view flex flex-col gap-6">
+        <!-- Section A: Top Telemetry Ribbon -->
+        <div class="w-full bg-surface-container-low border border-surface-container-high/60 rounded-xl p-4 shadow-lg flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
+          <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center gap-2 bg-surface-container-lowest px-3 py-1.5 rounded-md border border-white/5">
+              <span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse"></span>
+              <span class="text-[10px] font-mono text-outline uppercase tracking-wider">Engine:</span>
+              <span class="text-xs font-mono text-secondary font-semibold">SonicForge WASAPI Matrix Core</span>
+            </div>
+            <div class="flex items-center gap-2 bg-surface-container-lowest px-3 py-1.5 rounded-md border border-white/5">
+              <span class="material-symbols-outlined text-primary text-[16px]">spatial_audio</span>
+              <span class="text-[10px] font-mono text-outline uppercase">Multi-Output:</span>
+              <span class="text-xs font-mono text-primary font-semibold">3 Sinks Parallel Active</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-on-surface-variant">Real-Time DSP: <strong class="text-secondary">Zero-Latency Inlined</strong></span>
+          </div>
+        </div>
+
+        <!-- Section B: Active Output Device Split Cards (3 Channels) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full items-stretch" id="deviceCardsContainer">
+          <!-- Card 1: Studio Monitors -->
+          <div class="bg-surface-container-low border border-surface-container-high/80 rounded-xl p-5 flex flex-col justify-between shadow-xl relative group transition-all">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary-container to-transparent rounded-t-xl"></div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary text-[20px]">speaker</span>
+                  <h3 class="text-base font-bold text-on-surface">Studio Monitors</h3>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-primary font-mono text-xs font-semibold">OUT 1-2</span>
+              </div>
+              <div class="flex items-center justify-between text-on-surface-variant font-mono text-xs mb-3">
+                <span>Focusrite Scarlett 2i2 USB</span>
+                <span class="text-secondary font-medium">48kHz • 24-bit</span>
+              </div>
+              <div class="flex items-center justify-between px-3 py-1.5 bg-surface-container rounded-md border border-white/5 mb-4">
+                <span class="text-[10px] font-mono text-outline uppercase">Individual DSP</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" checked class="sr-only peer" onchange="toggleChannelDsp(0, this.checked)"/>
+                  <div class="w-7 h-4 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-surface peer-checked:bg-secondary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all"></div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Fader Strip + Metering + Solo/Mute -->
+            <div class="my-2 bg-surface-container-lowest p-4 rounded-lg border border-white/5 flex items-center justify-between gap-4">
+              <!-- Vertical Fader -->
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-[9px] font-mono text-outline">+6</span>
+                <div class="relative w-8 h-40 bg-surface-container-high rounded-full flex justify-center py-2 shadow-inner">
+                  <input type="range" min="-60" max="6" step="0.5" value="-1.4" class="absolute w-36 h-6 opacity-0 cursor-pointer -rotate-90 top-16 z-20" oninput="onChannelGainChange(0, this.value)"/>
+                  <div class="absolute w-1 h-32 bg-surface-container-lowest rounded-full"></div>
+                  <div id="faderHandle-0" class="absolute w-7 h-4 bg-surface-bright rounded shadow-md border border-white/20 flex items-center justify-center pointer-events-none transition-all" style="top: 36%;">
+                    <div class="w-4 h-0.5 bg-primary shadow-[0_0_6px_rgba(0,229,255,1)]"></div>
+                  </div>
+                </div>
+                <span class="text-[9px] font-mono text-outline">-inf</span>
+              </div>
+
+              <!-- Metric Readout & Meter Column -->
+              <div class="flex flex-col items-center gap-2 flex-1">
+                <span class="text-[10px] font-mono text-outline uppercase">Fader Level</span>
+                <div class="px-3 py-1 bg-surface-container rounded-md border border-white/5">
+                  <span id="faderReadout-0" class="font-mono text-sm text-primary font-bold">-1.4 dB</span>
+                </div>
+                <div class="flex items-center gap-1 h-20 bg-surface-container-high/60 p-1.5 rounded-md" id="chanMeter-0">
+                  <div class="w-2 h-full flex flex-col justify-end gap-[2px]">
+                    <div class="h-2 w-full rounded-sm bg-error/20 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-tertiary/20 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary/70 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary/40 meter-led"></div>
+                  </div>
+                  <div class="w-2 h-full flex flex-col justify-end gap-[2px]">
+                    <div class="h-2 w-full rounded-sm bg-error/20 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-tertiary/20 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary/70 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary/40 meter-led"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Solo / Mute Actions -->
+              <div class="flex flex-col gap-2">
+                <button id="soloBtn-0" onclick="toggleChannelSolo(0)" class="w-9 h-9 rounded-md bg-surface-container border border-surface-container-high hover:bg-primary hover:text-on-primary text-on-surface-variant font-bold font-mono text-sm flex items-center justify-center transition-all">S</button>
+                <button id="muteBtn-0" onclick="toggleChannelMute(0)" class="w-9 h-9 rounded-md bg-surface-container border border-surface-container-high hover:bg-error hover:text-white text-on-surface-variant font-bold font-mono text-sm flex items-center justify-center transition-all">M</button>
+              </div>
+            </div>
+
+            <!-- Quick DSP Knobs Matrix -->
+            <div class="flex flex-col gap-2 bg-surface-container/60 p-3 rounded-lg border border-white/5">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-mono text-outline uppercase tracking-wider">DSP Quick Suite</span>
+                <span class="material-symbols-outlined text-[16px] text-primary">tune</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="bg-surface-container-lowest p-2 rounded-md border border-white/5 flex flex-col items-center">
+                  <span class="text-[9px] font-mono text-outline uppercase">Real Bass</span>
+                  <span class="font-mono text-xs text-tertiary font-bold my-1">+4.2 dB</span>
+                  <span class="text-[8px] font-mono text-outline">80Hz Sub</span>
+                </div>
+                <div class="bg-surface-container-lowest p-2 rounded-md border border-white/5 flex flex-col items-center">
+                  <span class="text-[9px] font-mono text-outline uppercase">Sparkle</span>
+                  <span class="font-mono text-xs text-primary font-bold my-1">+2.8 dB</span>
+                  <span class="text-[8px] font-mono text-outline">10kHz Air</span>
+                </div>
+                <div class="bg-surface-container-lowest p-2 rounded-md border border-white/5 flex flex-col items-center">
+                  <span class="text-[9px] font-mono text-outline uppercase">Reverb</span>
+                  <span class="font-mono text-xs text-spatial-violet font-bold my-1">22%</span>
+                  <span class="text-[8px] font-mono text-outline">1.8s Hall</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Headphone Out -->
+          <div class="bg-surface-container-low border border-surface-container-high/80 rounded-xl p-5 flex flex-col justify-between shadow-xl relative group transition-all">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-secondary via-secondary-container to-transparent rounded-t-xl"></div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-secondary text-[20px]">headphones</span>
+                  <h3 class="text-base font-bold text-on-surface">Headphone Out</h3>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-secondary/10 border border-secondary/20 text-secondary font-mono text-xs font-semibold">OUT 3-4</span>
+              </div>
+              <div class="flex items-center justify-between text-on-surface-variant font-mono text-xs mb-3">
+                <span>Realtek High Definition Audio</span>
+                <span class="text-secondary font-medium">48kHz • 24-bit</span>
+              </div>
+              <div class="flex items-center justify-between px-3 py-1.5 bg-surface-container rounded-md border border-white/5 mb-4">
+                <span class="text-[10px] font-mono text-outline uppercase">Individual DSP</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" checked class="sr-only peer" onchange="toggleChannelDsp(1, this.checked)"/>
+                  <div class="w-7 h-4 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-surface peer-checked:bg-secondary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all"></div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Fader Strip + Metering + Solo/Mute -->
+            <div class="my-2 bg-surface-container-lowest p-4 rounded-lg border border-white/5 flex items-center justify-between gap-4">
+              <!-- Vertical Fader -->
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-[9px] font-mono text-outline">+6</span>
+                <div class="relative w-8 h-40 bg-surface-container-high rounded-full flex justify-center py-2 shadow-inner">
+                  <input type="range" min="-60" max="6" step="0.5" value="-3.8" class="absolute w-36 h-6 opacity-0 cursor-pointer -rotate-90 top-16 z-20" oninput="onChannelGainChange(1, this.value)"/>
+                  <div class="absolute w-1 h-32 bg-surface-container-lowest rounded-full"></div>
+                  <div id="faderHandle-1" class="absolute w-7 h-4 bg-surface-bright rounded shadow-md border border-white/20 flex items-center justify-center pointer-events-none transition-all" style="top: 48%;">
+                    <div class="w-4 h-0.5 bg-secondary shadow-[0_0_6px_rgba(16,185,129,1)]"></div>
+                  </div>
+                </div>
+                <span class="text-[9px] font-mono text-outline">-inf</span>
+              </div>
+
+              <!-- Metric Readout & Meter Column -->
+              <div class="flex flex-col items-center gap-2 flex-1">
+                <span class="text-[10px] font-mono text-outline uppercase">Fader Level</span>
+                <div class="px-3 py-1 bg-surface-container rounded-md border border-white/5">
+                  <span id="faderReadout-1" class="font-mono text-sm text-secondary font-bold">-3.8 dB</span>
+                </div>
+                <div class="flex items-center gap-1 h-20 bg-surface-container-high/60 p-1.5 rounded-md" id="chanMeter-1">
+                  <div class="w-2 h-full flex flex-col justify-end gap-[2px]">
+                    <div class="h-2 w-full rounded-sm bg-error/20 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-tertiary/20 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary/50 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary/20 meter-led"></div>
+                  </div>
+                  <div class="w-2 h-full flex flex-col justify-end gap-[2px]">
+                    <div class="h-2 w-full rounded-sm bg-error/20 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-tertiary/20 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary/50 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary/20 meter-led"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <button id="soloBtn-1" onclick="toggleChannelSolo(1)" class="w-9 h-9 rounded-md bg-surface-container border border-surface-container-high hover:bg-secondary hover:text-white text-on-surface-variant font-bold font-mono text-sm flex items-center justify-center transition-all">S</button>
+                <button id="muteBtn-1" onclick="toggleChannelMute(1)" class="w-9 h-9 rounded-md bg-surface-container border border-surface-container-high hover:bg-error hover:text-white text-on-surface-variant font-bold font-mono text-sm flex items-center justify-center transition-all">M</button>
+              </div>
+            </div>
+
+            <!-- Quick DSP Knobs Matrix -->
+            <div class="flex flex-col gap-2 bg-surface-container/60 p-3 rounded-lg border border-white/5">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-mono text-outline uppercase tracking-wider">Harman Compensation</span>
+                <span class="material-symbols-outlined text-[16px] text-secondary">graphic_eq</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="bg-surface-container-lowest p-2 rounded-md border border-white/5 flex flex-col items-center">
+                  <span class="text-[9px] font-mono text-outline uppercase">Real Bass</span>
+                  <span class="font-mono text-xs text-secondary font-bold my-1">+6.0 dB</span>
+                  <span class="text-[8px] font-mono text-outline">60Hz Boost</span>
+                </div>
+                <div class="bg-surface-container-lowest p-2 rounded-md border border-white/5 flex flex-col items-center">
+                  <span class="text-[9px] font-mono text-outline uppercase">Sparkle</span>
+                  <span class="font-mono text-xs text-primary font-bold my-1">+4.5 dB</span>
+                  <span class="text-[8px] font-mono text-outline">Air Band</span>
+                </div>
+                <div class="bg-surface-container-lowest p-2 rounded-md border border-white/5 flex flex-col items-center">
+                  <span class="text-[9px] font-mono text-outline uppercase">Crossfeed</span>
+                  <span class="font-mono text-xs text-tertiary font-bold my-1">12%</span>
+                  <span class="text-[8px] font-mono text-outline">120° Width</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Virtual Broadcast Cable -->
+          <div class="bg-surface-container-low border border-surface-container-high/80 rounded-xl p-5 flex flex-col justify-between shadow-xl relative group transition-all">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-tertiary via-tertiary-container to-transparent rounded-t-xl"></div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-tertiary text-[20px]">podcasts</span>
+                  <h3 class="text-base font-bold text-on-surface">Virtual Broadcast Cable</h3>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-tertiary/10 border border-tertiary/20 text-tertiary font-mono text-xs font-semibold">STREAM BUS</span>
+              </div>
+              <div class="flex items-center justify-between text-on-surface-variant font-mono text-xs mb-3">
+                <span>OBS Studio / Discord Routing Aux</span>
+                <span class="text-secondary font-medium">48kHz • 24-bit</span>
+              </div>
+              <div class="flex items-center justify-between px-3 py-1.5 bg-surface-container rounded-md border border-white/5 mb-4">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-error animate-ping"></span>
+                  <span class="text-[10px] font-mono text-error uppercase font-bold">Hard ISP Limiter Engaged</span>
+                </div>
+                <span class="text-[11px] font-mono text-on-surface font-semibold">-0.1 dBTP</span>
+              </div>
+            </div>
+
+            <!-- Fader Strip + Metering + Solo/Mute -->
+            <div class="my-2 bg-surface-container-lowest p-4 rounded-lg border border-white/5 flex items-center justify-between gap-4">
+              <!-- Vertical Fader -->
+              <div class="flex flex-col items-center gap-1">
+                <span class="text-[9px] font-mono text-outline">+6</span>
+                <div class="relative w-8 h-40 bg-surface-container-high rounded-full flex justify-center py-2 shadow-inner">
+                  <input type="range" min="-60" max="6" step="0.5" value="-6.0" class="absolute w-36 h-6 opacity-0 cursor-pointer -rotate-90 top-16 z-20" oninput="onChannelGainChange(2, this.value)"/>
+                  <div class="absolute w-1 h-32 bg-surface-container-lowest rounded-full"></div>
+                  <div id="faderHandle-2" class="absolute w-7 h-4 bg-surface-bright rounded shadow-md border border-white/20 flex items-center justify-center pointer-events-none transition-all" style="top: 58%;">
+                    <div class="w-4 h-0.5 bg-tertiary shadow-[0_0_6px_rgba(245,158,11,1)]"></div>
+                  </div>
+                </div>
+                <span class="text-[9px] font-mono text-outline">-inf</span>
+              </div>
+
+              <!-- Metric Readout & Meter Column -->
+              <div class="flex flex-col items-center gap-2 flex-1">
+                <span class="text-[10px] font-mono text-outline uppercase">Fader Level</span>
+                <div class="px-3 py-1 bg-surface-container rounded-md border border-white/5">
+                  <span id="faderReadout-2" class="font-mono text-sm text-tertiary font-bold">-6.0 dB</span>
+                </div>
+                <div class="flex items-center gap-1 h-20 bg-surface-container-high/60 p-1.5 rounded-md" id="chanMeter-2">
+                  <div class="w-2 h-full flex flex-col justify-end gap-[2px]">
+                    <div class="h-2 w-full rounded-sm bg-error/20 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-tertiary/20 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary/30 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary/80 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary/40 meter-led"></div>
+                  </div>
+                  <div class="w-2 h-full flex flex-col justify-end gap-[2px]">
+                    <div class="h-2 w-full rounded-sm bg-error/20 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-tertiary/20 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary/30 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary/80 meter-led"></div>
+                    <div class="h-2 w-full rounded-sm bg-secondary/40 meter-led"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-2">
+                <button id="soloBtn-2" onclick="toggleChannelSolo(2)" class="w-9 h-9 rounded-md bg-surface-container border border-surface-container-high hover:bg-tertiary hover:text-on-primary text-on-surface-variant font-bold font-mono text-sm flex items-center justify-center transition-all">S</button>
+                <button id="muteBtn-2" onclick="toggleChannelMute(2)" class="w-9 h-9 rounded-md bg-surface-container border border-surface-container-high hover:bg-error hover:text-white text-on-surface-variant font-bold font-mono text-sm flex items-center justify-center transition-all">M</button>
+              </div>
+            </div>
+
+            <!-- Quick DSP Knobs Matrix -->
+            <div class="flex flex-col gap-2 bg-surface-container/60 p-3 rounded-lg border border-white/5">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-mono text-outline uppercase tracking-wider">Broadcast Speech Processing</span>
+                <span class="material-symbols-outlined text-[16px] text-tertiary">mic</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="bg-surface-container-lowest p-2 rounded-md border border-white/5 flex flex-col items-center">
+                  <span class="text-[9px] font-mono text-outline uppercase">Clarity</span>
+                  <span class="font-mono text-xs text-tertiary font-bold my-1">ON</span>
+                  <span class="text-[8px] font-mono text-outline">Formant Opt</span>
+                </div>
+                <div class="bg-surface-container-lowest p-2 rounded-md border border-white/5 flex flex-col items-center">
+                  <span class="text-[9px] font-mono text-outline uppercase">De-Esser</span>
+                  <span class="font-mono text-xs text-primary font-bold my-1">-18dB</span>
+                  <span class="text-[8px] font-mono text-outline">Split Band</span>
+                </div>
+                <div class="bg-surface-container-lowest p-2 rounded-md border border-white/5 flex flex-col items-center">
+                  <span class="text-[9px] font-mono text-outline uppercase">Reverb</span>
+                  <span class="font-mono text-xs text-error font-bold my-1">BYPASS</span>
+                  <span class="text-[8px] font-mono text-outline">Dry Speech</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section C: Collapsible Mini Visualizer Strip -->
+        <div class="w-full bg-surface-container-low border border-surface-container-high/60 rounded-xl p-4 shadow-lg flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary text-[18px]">graphic_eq</span>
+              <span class="text-sm font-bold text-on-surface">Sum Audio Activity FFT Visualizer</span>
+              <span class="text-xs font-mono text-outline ml-2 hidden sm:inline">(1024-pt Blackman-Harris / 60 FPS)</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2 px-3 py-1 bg-surface-container-lowest rounded-md border border-white/5">
+                <span class="text-[10px] font-mono text-outline uppercase">Integrated LUFS:</span>
+                <span class="font-mono text-xs text-secondary font-bold">-14.2 LUFS</span>
+              </div>
+              <div class="flex items-center gap-2 px-3 py-1 bg-surface-container-lowest rounded-md border border-white/5">
+                <span class="text-[10px] font-mono text-outline uppercase">Dynamic Range:</span>
+                <span class="font-mono text-xs text-primary font-bold">11.8 LU</span>
+              </div>
+            </div>
+          </div>
+          <!-- 32-Band Visualizer Histogram -->
+          <div class="w-full h-24 bg-surface-container-lowest rounded-lg p-2 relative overflow-hidden flex items-end justify-between gap-[3px] border border-white/5" id="sumVisualizerBars">
+            <!-- 32 Bars generated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- TAB 2: PRECISION EQUALIZER & ANALYZER VIEW                        -->
+      <!-- ================================================================= -->
+      <section id="view-precision-equalizer" class="workspace-view hidden flex flex-col gap-6">
+        <!-- Top Control Surface -->
+        <div class="w-full bg-surface-container-low border border-surface-container-high/60 rounded-xl p-4 shadow-lg flex flex-wrap items-center justify-between gap-4">
+          <!-- Target & Topology -->
+          <div class="flex flex-wrap items-center gap-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-[10px] font-mono text-outline uppercase tracking-wider flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px] text-primary">speaker</span> Target Device
+              </label>
+              <div class="bg-surface-container-lowest px-3 py-1.5 rounded-md border border-white/5">
+                <select id="eqTargetSelect" class="bg-transparent font-mono text-xs text-on-surface outline-none cursor-pointer pr-3" onchange="onEqTargetChanged(this.value)">
+                  <option value="0">Studio Monitors (USB DAC Focusrite)</option>
+                  <option value="1">Headphone Out (Realtek Audio)</option>
+                  <option value="2">Virtual Broadcast Cable (OBS)</option>
+                </select>
+              </div>
+            </div>
+            <div class="h-8 w-px bg-surface-container-highest hidden sm:block"></div>
+            <!-- Mode 10 / 20 toggle -->
+            <div class="flex flex-col gap-1">
+              <label class="text-[10px] font-mono text-outline uppercase tracking-wider flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px] text-secondary">tune</span> Engine Topology
+              </label>
+              <div class="inline-flex p-1 bg-surface-container-lowest rounded-md border border-white/5">
+                <button id="mode10Btn" onclick="setEqMode('10')" class="px-3 py-1 rounded text-xs font-mono font-semibold transition-all bg-surface-container-high text-primary shadow-sm">10-Band Graphic</button>
+                <button id="mode20Btn" onclick="setEqMode('20')" class="px-3 py-1 rounded text-xs font-mono transition-all text-on-surface-variant hover:text-on-surface">20-Band Precision</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preset Bank -->
+          <div class="flex flex-wrap items-center gap-3 ml-auto">
+            <div class="flex flex-col gap-1">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-mono text-outline uppercase">Acoustic Preset</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="relative flex items-center bg-surface-container-lowest px-3 py-1.5 rounded-md border border-white/5">
+                  <span class="material-symbols-outlined text-[15px] text-tertiary mr-1.5">auto_fix_high</span>
+                  <select id="eqPresetSelect" class="bg-transparent font-mono text-xs text-on-surface outline-none cursor-pointer pr-4" onchange="onEqPresetChanged(this.value)">
+                    <option value="custom" selected>Custom Mastering</option>
+                    <option value="bass">Bass Punch (Warm Sub)</option>
+                    <option value="vocal">Vocal Air (Presence Lift)</option>
+                    <option value="flat">Acoustic Flat (Reference)</option>
+                    <option value="loudness">Electronic / Loudness</option>
+                  </select>
+                </div>
+                <button onclick="resetEqCurve()" class="w-8 h-8 rounded-md bg-surface-container border border-surface-container-high hover:bg-error/20 hover:text-error text-on-surface transition-all flex items-center justify-center" title="Reset All Bands to 0.0 dB">
+                  <span class="material-symbols-outlined text-[16px]">restart_alt</span>
+                </button>
+              </div>
+            </div>
+            <button id="eqBypassBtn" onclick="toggleEqBypass()" class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-surface-container border border-secondary/50 text-secondary transition-all shadow-[0_0_8px_rgba(16,185,129,0.2)]">
+              <span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_6px_rgba(16,185,129,0.8)] animate-pulse" id="eqBypassDot"></span>
+              <span class="text-xs font-mono font-bold uppercase" id="eqBypassLabel">EQ In</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- FFT & Oscilloscope Canvas Section -->
+        <div class="relative w-full bg-surface-container-lowest border border-surface-container-high/60 rounded-xl overflow-hidden shadow-2xl p-3 flex flex-col">
+          <div class="flex items-center justify-between px-3 py-1.5 z-20">
+            <div class="flex items-center gap-4">
+              <span class="text-[10px] font-mono text-outline uppercase tracking-wider flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_6px_rgba(0,229,255,0.8)]"></span>
+                FFT RTA 4096-Pt • Real-Time Dual Spectrum
+              </span>
+              <span class="text-xs font-mono text-on-surface-variant hidden md:inline">Curve: <strong class="text-primary font-semibold">Min-Phase IIR</strong></span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="bg-surface-container-high px-3 py-1 rounded-md border border-white/5 flex items-center gap-2">
+                <span class="text-[9px] font-mono text-outline uppercase">Cursor</span>
+                <span id="cursorFreqReadout" class="font-mono text-xs text-primary font-semibold">1,000 Hz</span>
+                <span id="cursorGainReadout" class="font-mono text-xs text-secondary font-semibold">+0.0 dB</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Canvas Element -->
+          <div class="relative w-full h-[320px] bg-surface-container-lowest rounded-lg overflow-hidden cursor-crosshair select-none" id="canvasContainer">
+            <div class="absolute inset-0 flex flex-col justify-between pointer-events-none px-2 py-3 text-[10px] font-mono text-outline/40">
+              <div class="flex justify-between items-center w-full"><span>+12 dB</span><div class="flex-1 h-px bg-white/5 mx-2"></div><span>+12 dB</span></div>
+              <div class="flex justify-between items-center w-full"><span>+6 dB</span><div class="flex-1 h-px bg-white/5 mx-2"></div><span>+6 dB</span></div>
+              <div class="flex justify-between items-center w-full text-primary/70"><span>0 dB (Detent)</span><div class="flex-1 h-px bg-primary/20 mx-2"></div><span>0 dB</span></div>
+              <div class="flex justify-between items-center w-full"><span>-6 dB</span><div class="flex-1 h-px bg-white/5 mx-2"></div><span>-6 dB</span></div>
+              <div class="flex justify-between items-center w-full"><span>-12 dB</span><div class="flex-1 h-px bg-white/5 mx-2"></div><span>-12 dB</span></div>
+            </div>
+            <canvas id="dspCanvas" class="absolute inset-0 w-full h-full block"></canvas>
+            <div id="interactiveNodeLayer" class="absolute inset-0 pointer-events-auto"></div>
+          </div>
+        </div>
+
+        <!-- Filter Slopes: Low Cut & High Cut -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-surface-container-low border border-surface-container-high/60 p-4 rounded-xl flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-md bg-surface-container-high flex items-center justify-center text-primary border border-white/5">
+                <span class="material-symbols-outlined text-[20px]">horizontal_split</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-sm font-bold text-on-surface">High-Pass / Low-Cut</span>
+                <span class="text-xs font-mono text-outline">Sub-bass rumble filtration</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-mono text-xs text-primary font-bold">24 Hz</span>
+              <div class="flex p-0.5 bg-surface-container-lowest rounded-md border border-white/5">
+                <button onclick="setLowCutSlope(false)" class="px-2.5 py-1 rounded text-xs font-mono text-on-surface-variant hover:text-on-surface" id="lowCut12Btn">12dB/oct</button>
+                <button onclick="setLowCutSlope(true)" class="px-2.5 py-1 rounded text-xs font-mono bg-primary text-on-primary font-bold shadow-sm" id="lowCut24Btn">24dB/oct</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-surface-container-low border border-surface-container-high/60 p-4 rounded-xl flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-md bg-surface-container-high flex items-center justify-center text-primary-fixed-dim border border-white/5">
+                <span class="material-symbols-outlined text-[20px]">trending_flat</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-sm font-bold text-on-surface">Low-Pass / High-Cut</span>
+                <span class="text-xs font-mono text-outline">Ultrasonic alias suppression</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-mono text-xs text-primary font-bold">18.5 kHz</span>
+              <div class="flex p-0.5 bg-surface-container-lowest rounded-md border border-white/5">
+                <button onclick="setHighCutSlope(false)" class="px-2.5 py-1 rounded text-xs font-mono bg-primary text-on-primary font-bold shadow-sm" id="highCut12Btn">12dB/oct</button>
+                <button onclick="setHighCutSlope(true)" class="px-2.5 py-1 rounded text-xs font-mono text-on-surface-variant hover:text-on-surface" id="highCut24Btn">24dB/oct</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calibrated Slider Bank -->
+        <div class="w-full bg-surface-container-low border border-surface-container-high/60 rounded-xl p-4 shadow-lg flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary text-[18px]">equalizer</span>
+              <h2 class="text-sm font-bold text-on-surface">Parametric & Graphic Frequency Calibration Bank</h2>
+            </div>
+            <span class="text-xs font-mono text-outline bg-surface-container-lowest px-2 py-0.5 rounded border border-white/5">-12.0 dB ... +12.0 dB</span>
+          </div>
+          <div class="w-full overflow-x-auto pb-2">
+            <div class="min-w-[800px] flex items-stretch justify-between gap-1 p-3 bg-surface-container-lowest rounded-xl border border-white/5" id="sliderBankRack">
+              <!-- Sliders dynamically rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- TAB 3: DSP FX RACK VIEW                                           -->
+      <!-- ================================================================= -->
+      <section id="view-dsp-fx-rack" class="workspace-view hidden flex flex-col gap-6">
+        <!-- Top Command Strip -->
+        <div class="w-full bg-surface-container-low border border-surface-container-high/60 rounded-xl p-4 shadow-lg flex flex-col gap-3">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(0,229,255,0.7)] animate-pulse"></span>
+                <span class="text-xs font-mono text-outline uppercase">DSP FX Chain:</span>
+              </div>
+              <span class="text-sm font-bold text-on-surface">Serial 64-Bit Float Precision Rack</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="fxGlobalBypassBtn" onclick="toggleGlobalFxBypass()" class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-surface-container border border-surface-container-high hover:border-error text-on-surface transition-all">
+                <span class="material-symbols-outlined text-[16px] text-error">power_settings_new</span>
+                <span class="text-xs font-mono uppercase" id="fxGlobalBypassText">Bypass FX</span>
+              </button>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 bg-surface-container-lowest p-2 rounded-lg border border-white/5 text-xs font-mono">
+            <span class="text-outline uppercase px-1">Flow:</span>
+            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-high border border-white/5 text-on-surface">
+              <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+              <span>01. RealBass (SubSat)</span>
+            </div>
+            <span class="material-symbols-outlined text-outline text-[14px]">arrow_forward</span>
+            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-high border border-white/5 text-on-surface">
+              <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+              <span>02. TrebleSparkle (Air)</span>
+            </div>
+            <span class="material-symbols-outlined text-outline text-[14px]">arrow_forward</span>
+            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-high border border-white/5 text-on-surface">
+              <span class="w-1.5 h-1.5 rounded-full bg-spatial-violet"></span>
+              <span>03. RealReverb (Room)</span>
+            </div>
+            <span class="material-symbols-outlined text-outline text-[14px]">arrow_forward</span>
+            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-high border border-white/5 text-on-surface">
+              <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+              <span>04. Brickwall (Ceiling -0.1)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE 1: Real Bass & Sub-Harmonic Synthesizer (Amber) -->
+        <div class="w-full bg-surface-container-low border border-surface-container-high/60 rounded-xl overflow-hidden shadow-xl">
+          <div class="bg-surface-container-high px-4 py-2.5 flex items-center justify-between border-b border-white/5">
+            <div class="flex items-center gap-3">
+              <span class="px-2 py-0.5 rounded bg-tertiary/20 text-tertiary border border-tertiary/30 font-mono text-xs font-bold">SLOT 01</span>
+              <div>
+                <h3 class="text-sm font-bold text-on-surface">Real Bass & Sub-Harmonic Synthesizer</h3>
+                <span class="text-[11px] font-mono text-outline">Dynamic Wavefolding • Cubic Soft Saturation (x - x³/3)</span>
+              </div>
+            </div>
+            <button onclick="toggleFxSlot('bass')" class="w-7 h-7 rounded bg-tertiary text-on-primary flex items-center justify-center font-bold" id="bassPowerBtn">
+              <span class="material-symbols-outlined text-[16px]">power_settings_new</span>
+            </button>
+          </div>
+          <div class="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <div class="lg:col-span-4 flex flex-col items-center bg-surface-container-lowest p-5 rounded-lg border border-white/5">
+              <span class="text-[10px] font-mono text-tertiary uppercase tracking-wider mb-2">Sub-Bass Drive Stage</span>
+              <div class="relative w-28 h-28 flex items-center justify-center">
+                <svg class="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" fill="none" class="stroke-surface-container-high" stroke-width="6" stroke-dasharray="210" stroke-dashoffset="40" stroke-linecap="round"/>
+                  <circle id="bassArc" cx="50" cy="50" r="40" fill="none" class="stroke-tertiary" stroke-width="6" stroke-dasharray="210" stroke-dashoffset="120" stroke-linecap="round"/>
+                </svg>
+                <div class="absolute w-20 h-20 rounded-full bg-surface-container flex flex-col items-center justify-center border border-white/10 shadow-lg">
+                  <span id="bassDriveText" class="font-mono text-lg font-bold text-on-surface">+4.2</span>
+                  <span class="text-[9px] font-mono text-outline">dB Drive</span>
+                </div>
+              </div>
+              <input type="range" min="0" max="18" step="0.2" value="4.2" class="w-full mt-3 accent-tertiary cursor-pointer" oninput="onBassDriveChange(this.value)"/>
+              <div class="flex justify-between w-full text-[10px] font-mono text-outline mt-1">
+                <span>0 dB</span>
+                <span>+18 dB MAX</span>
+              </div>
+            </div>
+
+            <div class="lg:col-span-5 flex flex-col justify-between gap-4">
+              <div class="flex flex-col gap-2 bg-surface-container/60 p-3 rounded-lg border border-white/5">
+                <div class="flex justify-between items-center text-[10px] font-mono">
+                  <span class="text-outline uppercase">Low-Cutoff Crossover</span>
+                  <span class="text-tertiary font-semibold" id="bassCutoffLabel">80 Hz Linkwitz-Riley</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                  <button onclick="setBassCutoff(60)" class="bass-freq-btn py-1.5 rounded font-mono text-xs text-on-surface-variant hover:text-on-surface bg-surface-container-lowest border border-white/5" data-freq="60">60 Hz</button>
+                  <button onclick="setBassCutoff(80)" class="bass-freq-btn py-1.5 rounded font-mono text-xs bg-tertiary text-on-primary font-bold shadow-sm" data-freq="80">80 Hz</button>
+                  <button onclick="setBassCutoff(100)" class="bass-freq-btn py-1.5 rounded font-mono text-xs text-on-surface-variant hover:text-on-surface bg-surface-container-lowest border border-white/5" data-freq="100">100 Hz</button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div class="bg-surface-container-lowest p-3 rounded-lg border border-white/5 flex flex-col items-center">
+                  <span class="text-[9px] font-mono text-outline uppercase mb-1">Harmonic Saturation</span>
+                  <span id="bassSatVal" class="font-mono text-sm text-tertiary font-bold my-1">45%</span>
+                  <input type="range" min="0" max="100" step="1" value="45" class="w-full accent-tertiary cursor-pointer" oninput="onBassSatChange(this.value)"/>
+                </div>
+                <div class="bg-surface-container-lowest p-3 rounded-lg border border-white/5 flex flex-col items-center">
+                  <span class="text-[9px] font-mono text-outline uppercase mb-1">Sub-Octave Level</span>
+                  <span id="bassSubVal" class="font-mono text-sm text-tertiary font-bold my-1">+4.5 dB</span>
+                  <input type="range" min="0" max="12" step="0.5" value="4.5" class="w-full accent-tertiary cursor-pointer" oninput="onBassSubChange(this.value)"/>
+                </div>
+              </div>
+            </div>
+
+            <div class="lg:col-span-3 flex flex-col gap-3 bg-surface-container-lowest p-4 rounded-lg border border-white/5">
+              <div class="flex items-center justify-between text-xs font-mono">
+                <span class="text-outline uppercase">Phase Coherence:</span>
+                <span class="text-secondary font-bold">98.2%</span>
+              </div>
+              <button onclick="toggleMonoCollapse()" id="monoCollapseBtn" class="w-full flex items-center justify-between p-2.5 rounded-md bg-surface-container border border-surface-container-high hover:border-tertiary text-xs text-on-surface transition-all">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-[16px] text-tertiary">call_merge</span>
+                  <span>Mono Collapse &lt;120Hz</span>
+                </div>
+                <span class="w-2.5 h-2.5 rounded-full bg-secondary shadow-[0_0_6px_rgba(16,185,129,0.8)]" id="monoCollapseDot"></span>
+              </button>
+              <button onclick="toggleSubGen()" id="subGenBtn" class="w-full flex items-center justify-between p-2.5 rounded-md bg-surface-container border border-surface-container-high hover:border-tertiary text-xs text-on-surface transition-all">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-[16px] text-tertiary">graphic_eq</span>
+                  <span>Sub-Octave Gen</span>
+                </div>
+                <span class="text-[10px] font-mono text-secondary font-bold" id="subGenLabel">ACTIVE</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE 2: Treble Sparkle & Dynamic Exciter (Electric Cyan) -->
+        <div class="w-full bg-surface-container-low border border-surface-container-high/60 rounded-xl overflow-hidden shadow-xl">
+          <div class="bg-surface-container-high px-4 py-2.5 flex items-center justify-between border-b border-white/5">
+            <div class="flex items-center gap-3">
+              <span class="px-2 py-0.5 rounded bg-primary/20 text-primary border border-primary/30 font-mono text-xs font-bold">SLOT 02</span>
+              <div>
+                <h3 class="text-sm font-bold text-on-surface">Treble Sparkle & Dynamic Exciter</h3>
+                <span class="text-[11px] font-mono text-outline">High-Shelf Phase Linearization • Triode Tube Harmonics</span>
+              </div>
+            </div>
+            <button onclick="toggleFxSlot('treble')" class="w-7 h-7 rounded bg-primary text-on-primary flex items-center justify-center font-bold" id="treblePowerBtn">
+              <span class="material-symbols-outlined text-[16px]">power_settings_new</span>
+            </button>
+          </div>
+          <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
+            <div class="bg-surface-container-lowest p-4 rounded-lg border border-white/5 flex flex-col justify-between">
+              <span class="text-[10px] font-mono text-outline uppercase">Corner Frequency</span>
+              <div class="flex flex-col gap-2 my-2">
+                <label class="flex items-center justify-between p-2 rounded bg-surface-container text-xs font-mono cursor-pointer">
+                  <span>8.0 kHz</span>
+                  <input type="radio" name="sparkleFreq" value="8000" onchange="setTrebleShelf(8000)"/>
+                </label>
+                <label class="flex items-center justify-between p-2 rounded bg-primary/20 border border-primary/40 text-xs font-mono text-primary font-bold cursor-pointer">
+                  <span>10.0 kHz</span>
+                  <input type="radio" name="sparkleFreq" value="10000" checked onchange="setTrebleShelf(10000)"/>
+                </label>
+                <label class="flex items-center justify-between p-2 rounded bg-surface-container text-xs font-mono cursor-pointer">
+                  <span>12.0 kHz</span>
+                  <input type="radio" name="sparkleFreq" value="12000" onchange="setTrebleShelf(12000)"/>
+                </label>
+              </div>
+              <span class="text-[9px] font-mono text-outline">Baxandall High Shelf</span>
+            </div>
+
+            <div class="bg-surface-container-lowest p-4 rounded-lg border border-white/5 flex flex-col items-center justify-between">
+              <span class="text-[10px] font-mono text-primary uppercase">Air Brilliance</span>
+              <div class="flex flex-col items-center my-2">
+                <span id="trebleBrillianceVal" class="font-mono text-xl font-bold text-primary">+4.2 dB</span>
+                <input type="range" min="0" max="12" step="0.2" value="4.2" class="w-36 mt-2 accent-primary cursor-pointer" oninput="onTrebleBrillianceChange(this.value)"/>
+              </div>
+              <span class="text-[9px] font-mono text-outline">0 to +12 dB Boost</span>
+            </div>
+
+            <div class="bg-surface-container-lowest p-4 rounded-lg border border-white/5 flex flex-col justify-between">
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] font-mono text-outline uppercase">Transient Attack</span>
+                <span id="trebleAttackVal" class="font-mono text-xs text-primary font-bold">+2.8 dB</span>
+              </div>
+              <div class="flex flex-col items-center my-2">
+                <input type="range" min="0" max="6" step="0.2" value="2.8" class="w-full accent-primary cursor-pointer" oninput="onTrebleAttackChange(this.value)"/>
+              </div>
+              <span class="text-[9px] font-mono text-outline">Crisp Edge Enhancer</span>
+            </div>
+
+            <div class="bg-surface-container-lowest p-4 rounded-lg border border-white/5 flex flex-col justify-between">
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] font-mono text-outline uppercase">Tube Warmth</span>
+                <span id="trebleTubeVal" class="font-mono text-xs text-tertiary font-bold">68%</span>
+              </div>
+              <div class="flex flex-col items-center my-2">
+                <input type="range" min="0" max="100" step="1" value="68" class="w-full accent-tertiary cursor-pointer" oninput="onTrebleTubeChange(this.value)"/>
+              </div>
+              <span class="text-[9px] font-mono text-outline">Triode 12AX7 Asymmetry</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE 3: Real Reverb & Spatial Engine (Spatial Violet) -->
+        <div class="w-full bg-surface-container-low border border-surface-container-high/60 rounded-xl overflow-hidden shadow-xl">
+          <div class="bg-surface-container-high px-4 py-2.5 flex items-center justify-between border-b border-white/5">
+            <div class="flex items-center gap-3">
+              <span class="px-2 py-0.5 rounded bg-spatial-violet/20 text-spatial-violet border border-spatial-violet/30 font-mono text-xs font-bold">SLOT 03</span>
+              <div>
+                <h3 class="text-sm font-bold text-on-surface">Real Reverb & Spatial Engine</h3>
+                <span class="text-[11px] font-mono text-outline">Schroeder/Freeverb Matrix • 8 Comb + 4 All-Pass Filters</span>
+              </div>
+            </div>
+            <button onclick="toggleFxSlot('reverb')" class="w-7 h-7 rounded bg-spatial-violet text-white flex items-center justify-center font-bold" id="reverbPowerBtn">
+              <span class="material-symbols-outlined text-[16px]">power_settings_new</span>
+            </button>
+          </div>
+          <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
+            <div class="bg-surface-container-lowest p-4 rounded-lg border border-white/5 flex flex-col items-center justify-between">
+              <span class="text-[10px] font-mono text-outline uppercase">Wet / Dry Blend</span>
+              <div class="flex flex-col items-center my-2">
+                <span id="reverbWetVal" class="font-mono text-xl font-bold text-spatial-violet">35%</span>
+                <input type="range" min="0" max="100" step="1" value="35" class="w-36 mt-2 accent-spatial-violet cursor-pointer" oninput="onReverbWetChange(this.value)"/>
+              </div>
+              <div class="flex justify-between w-full text-[10px] font-mono text-outline">
+                <span>0% Dry</span>
+                <span>100% Wet</span>
+              </div>
+            </div>
+
+            <div class="bg-surface-container-lowest p-4 rounded-lg border border-white/5 flex flex-col items-center justify-between">
+              <span class="text-[10px] font-mono text-outline uppercase">Decay (RT60)</span>
+              <div class="flex flex-col items-center my-2">
+                <span id="reverbDecayVal" class="font-mono text-xl font-bold text-spatial-violet">2.4s</span>
+                <input type="range" min="0.2" max="10.0" step="0.1" value="2.4" class="w-36 mt-2 accent-spatial-violet cursor-pointer" oninput="onReverbDecayChange(this.value)"/>
+              </div>
+              <div class="flex justify-between w-full text-[10px] font-mono text-outline">
+                <span>0.2s</span>
+                <span>10.0s Hall</span>
+              </div>
+            </div>
+
+            <div class="bg-surface-container-lowest p-4 rounded-lg border border-white/5 flex flex-col justify-between">
+              <div class="flex justify-between items-center text-xs font-mono">
+                <span class="text-outline uppercase">Pre-Delay:</span>
+                <span id="reverbPredelayVal" class="text-spatial-violet font-bold">18 ms</span>
+              </div>
+              <input type="range" min="0" max="120" step="1" value="18" class="w-full accent-spatial-violet cursor-pointer" oninput="onReverbPredelayChange(this.value)"/>
+              <div class="flex justify-between items-center text-xs font-mono mt-2">
+                <span class="text-outline uppercase">HF Damping:</span>
+                <span id="reverbDampVal" class="text-spatial-violet font-bold">25%</span>
+              </div>
+              <input type="range" min="0" max="100" step="1" value="25" class="w-full accent-spatial-violet cursor-pointer" oninput="onReverbDampChange(this.value)"/>
+            </div>
+
+            <div class="bg-surface-container-lowest p-4 rounded-lg border border-white/5 flex flex-col justify-between">
+              <div class="flex justify-between items-center text-xs font-mono">
+                <span class="text-outline uppercase">Spatial Width:</span>
+                <span id="reverbWidthVal" class="text-secondary font-bold">142%</span>
+              </div>
+              <div class="h-16 w-full bg-surface-container rounded-md flex items-center justify-center relative overflow-hidden border border-white/5">
+                <div class="absolute w-10 h-10 rounded-full border border-white/10"></div>
+                <div class="absolute w-5 h-5 rounded-full border border-white/10"></div>
+                <svg class="w-full h-full" viewBox="0 0 100 60">
+                  <path d="M 50 30 Q 65 15, 75 25 T 50 30 T 25 35 T 50 30" fill="none" stroke="#8B5CF6" stroke-width="2"/>
+                </svg>
+              </div>
+              <input type="range" min="0" max="200" step="1" value="142" class="w-full accent-secondary cursor-pointer" oninput="onReverbWidthChange(this.value)"/>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- TAB 4: AUDIO ROUTING MAP VIEW                                     -->
+      <!-- ================================================================= -->
+      <section id="view-audio-routing-map" class="workspace-view hidden flex flex-col gap-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-surface-container-low border border-surface-container-high/60 p-4 rounded-xl shadow-lg">
+          <div class="flex items-center gap-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-secondary shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse"></span>
+            <span class="text-sm font-bold text-on-surface">Active Matrix Interconnect Matrix</span>
+            <span class="text-xs font-mono text-outline">| Crosspoints: <strong class="text-primary font-semibold" id="crosspointCount">8 Active</strong></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="invertAllPhase()" class="px-3 py-1.5 rounded-md bg-surface-container border border-surface-container-high text-xs font-mono uppercase hover:border-tertiary">Phase Invert All</button>
+            <button onclick="resetMatrixDefault()" class="px-3 py-1.5 rounded-md bg-surface-container border border-surface-container-high text-xs font-mono uppercase hover:border-primary">Default Route</button>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-low border border-surface-container-high/60 rounded-xl p-5 shadow-xl">
+          <div class="grid grid-cols-12 gap-4 text-[10px] font-mono text-outline uppercase tracking-wider pb-2 border-b border-white/5">
+            <div class="col-span-4">Audio Ingestion Nodes (4 Sources)</div>
+            <div class="col-span-4 text-center">Interactive Matrix Crosspoint Grid</div>
+            <div class="col-span-4 text-right">Physical / Virtual Sinks (3 Sinks)</div>
+          </div>
+
+          <div class="grid grid-cols-12 gap-4 pt-4 items-center">
+            <div class="col-span-4 flex flex-col gap-3" id="patchbaySources"></div>
+            <div class="col-span-4 flex flex-col items-center justify-center p-3 bg-surface-container-lowest rounded-lg border border-white/5">
+              <span class="text-[9px] font-mono text-outline uppercase mb-3">Click Node to Toggle Route</span>
+              <div class="grid grid-cols-3 gap-3" id="matrixGridNodes"></div>
+            </div>
+            <div class="col-span-4 flex flex-col gap-3" id="patchbayOutputs"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- BOTTOM STATUS BAR / FOOTER                                            -->
+  <!-- ===================================================================== -->
+  <footer class="fixed bottom-0 left-0 right-0 h-8 bg-surface-container-lowest/95 backdrop-blur-md border-t border-surface-container-high/60 z-50 px-6 flex items-center justify-between text-xs font-mono">
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_4px_rgba(16,185,129,0.8)]"></span>
+        <span class="text-on-surface" id="footerStatusText">Loopback: Active -> Virtual Output Sink</span>
+      </div>
+      <div class="h-3 w-px bg-surface-container-highest"></div>
+      <div class="flex items-center gap-1.5 text-on-surface-variant">
+        <span class="material-symbols-outlined text-[14px] text-primary">timer</span>
+        <span>DSP Latency: <strong class="text-secondary" id="footerLatencyText">1.33 ms (64 spls)</strong></span>
+      </div>
+      <div class="h-3 w-px bg-surface-container-highest"></div>
+      <span class="text-on-surface-variant">Underruns: <strong class="text-secondary" id="footerUnderruns">0 dropouts</strong></span>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] text-outline uppercase">Engine Load</span>
+        <div class="w-16 h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+          <div class="h-full w-[8%] bg-secondary shadow-[0_0_4px_rgba(16,185,129,0.8)]"></div>
+        </div>
+        <span class="text-secondary font-semibold">1.2%</span>
+      </div>
+      <div class="h-3 w-px bg-surface-container-highest"></div>
+      <span class="text-outline">SonicForge Core v2.4.12-x64</span>
+    </div>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- FRONTEND JAVASCRIPT CONTROLLER                                        -->
+  <!-- ===================================================================== -->
+  <script>
+    const state = {
+      activeTab: 'multi-track-matrix',
+      eqMode: '10',
+      eqBypassed: false,
+      soloBandIdx: null,
+      eqBands10: [
+        { freq: '31Hz', hz: 31, gain: 2.4, q: 1.41 },
+        { freq: '63Hz', hz: 63, gain: 3.8, q: 1.41 },
+        { freq: '125Hz', hz: 125, gain: 1.2, q: 1.41 },
+        { freq: '250Hz', hz: 250, gain: -1.5, q: 1.41 },
+        { freq: '500Hz', hz: 500, gain: -0.8, q: 1.41 },
+        { freq: '1kHz', hz: 1000, gain: 0.0, q: 1.41 },
+        { freq: '2kHz', hz: 2000, gain: 1.8, q: 1.41 },
+        { freq: '4kHz', hz: 4000, gain: 3.2, q: 1.41 },
+        { freq: '8kHz', hz: 8000, gain: 2.1, q: 1.41 },
+        { freq: '16kHz', hz: 16000, gain: 4.0, q: 1.41 },
+      ],
+      eqBands20: [
+        { freq: '20Hz', hz: 20, gain: 2.0, q: 2.87 },
+        { freq: '31.5Hz', hz: 31.5, gain: 3.2, q: 2.87 },
+        { freq: '45Hz', hz: 45, gain: 4.0, q: 2.87 },
+        { freq: '63Hz', hz: 63, gain: 3.5, q: 2.87 },
+        { freq: '90Hz', hz: 90, gain: 2.0, q: 2.87 },
+        { freq: '125Hz', hz: 125, gain: 1.0, q: 2.87 },
+        { freq: '180Hz', hz: 180, gain: -0.5, q: 2.87 },
+        { freq: '250Hz', hz: 250, gain: -1.2, q: 2.87 },
+        { freq: '355Hz', hz: 355, gain: -1.0, q: 2.87 },
+        { freq: '500Hz', hz: 500, gain: -0.8, q: 2.87 },
+        { freq: '710Hz', hz: 710, gain: 0.0, q: 2.87 },
+        { freq: '1kHz', hz: 1000, gain: 0.5, q: 2.87 },
+        { freq: '1.4kHz', hz: 1400, gain: 1.2, q: 2.87 },
+        { freq: '2kHz', hz: 2000, gain: 2.0, q: 2.87 },
+        { freq: '2.8kHz', hz: 2800, gain: 2.8, q: 2.87 },
+        { freq: '4kHz', hz: 4000, gain: 3.4, q: 2.87 },
+        { freq: '5.6kHz', hz: 5600, gain: 3.0, q: 2.87 },
+        { freq: '8kHz', hz: 8000, gain: 2.2, q: 2.87 },
+        { freq: '11.2kHz', hz: 11200, gain: 3.2, q: 2.87 },
+        { freq: '16kHz', hz: 16000, gain: 4.2, q: 2.87 },
+      ],
+      channels: [
+        { name: "Studio Monitors", gain: -1.4, muted: false, solo: false },
+        { name: "Headphone Out", gain: -3.8, muted: false, solo: false },
+        { name: "Virtual Cable", gain: -6.0, muted: false, solo: false },
+      ],
+      sources: [
+        { id: "win-loopback", name: "Windows System Loopback", trim: 0.0, phase: false },
+        { id: "spotify-session", name: "Spotify / Media Session", trim: -1.5, phase: false },
+        { id: "discord-comms", name: "Discord / Communications", trim: 2.0, phase: false },
+        { id: "mic-input", name: "Microphone / Analog In", trim: 0.0, phase: false },
+      ],
+      matrix: [
+        [true, true, true],
+        [true, true, false],
+        [false, true, true],
+        [false, false, true],
+      ],
+      masterGain: -0.4,
+      masterMuted: false,
+      dspSync: true,
+      fxSlotEnabled: { bass: true, treble: true, reverb: true, limiter: true },
+      globalFxBypass: false,
+    };
+
+    function sendIpc(cmd, payload = {}) {
+      const message = JSON.stringify({ cmd, ...payload });
+      if (window.ipc && window.ipc.postMessage) {
+        window.ipc.postMessage(message);
+      } else {
+        console.log('[IPC Mock] ->', message);
+      }
+    }
+
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+      document.querySelectorAll('.workspace-view').forEach(el => el.classList.add('hidden'));
+      const activeEl = document.getElementById('view-' + tabId);
+      if (activeEl) activeEl.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-tab').forEach(b => {
+        b.className = "nav-tab flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all";
+      });
+      const activeBtn = document.querySelector(`.nav-tab[data-tab="${tabId}"]`);
+      if (activeBtn) activeBtn.className = "nav-tab tab-active flex items-center gap-3 px-3 py-2.5 rounded-lg text-left text-sm transition-all";
+
+      if (tabId === 'precision-equalizer') {
+        resizeCanvas();
+        renderSliders();
+        renderInteractiveNodes();
+      }
+    }
+
+    function toggleDspSync() {
+      state.dspSync = !state.dspSync;
+      const icon = document.getElementById('dspSyncIcon');
+      const label = document.getElementById('dspSyncLabel');
+      const dot = document.getElementById('dspSyncDot');
+      if (state.dspSync) {
+        icon.textContent = 'lock';
+        label.textContent = 'DSP Sync';
+        dot.className = "w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_6px_rgba(0,229,255,0.8)]";
+      } else {
+        icon.textContent = 'lock_open';
+        label.textContent = 'DSP Free';
+        dot.className = "w-1.5 h-1.5 rounded-full bg-outline";
+      }
+      sendIpc('set_dsp_sync', { active: state.dspSync });
+    }
+
+    function toggleMasterMute() {
+      state.masterMuted = !state.masterMuted;
+      const btn = document.getElementById('masterMuteBtn');
+      const icon = document.getElementById('masterMuteIcon');
+      if (state.masterMuted) {
+        btn.classList.add('bg-error/30', 'text-error', 'border-error');
+        icon.textContent = 'volume_off';
+      } else {
+        btn.classList.remove('bg-error/30', 'text-error', 'border-error');
+        icon.textContent = 'volume_up';
+      }
+      sendIpc('set_master_mute', { muted: state.masterMuted });
+    }
+
+    function onChannelGainChange(chIdx, val) {
+      const num = parseFloat(val);
+      state.channels[chIdx].gain = num;
+      const readout = document.getElementById(`faderReadout-${chIdx}`);
+      if (readout) readout.textContent = `${num > 0 ? '+' : ''}${num.toFixed(1)} dB`;
+      const handle = document.getElementById(`faderHandle-${chIdx}`);
+      if (handle) {
+        const pct = Math.max(5, Math.min(90, ((6 - num) / 66) * 100));
+        handle.style.top = `${pct}%`;
+      }
+      sendIpc('set_channel_gain', { channel: chIdx, gain_db: num });
+    }
+
+    function toggleChannelSolo(chIdx) {
+      state.channels[chIdx].solo = !state.channels[chIdx].solo;
+      const btn = document.getElementById(`soloBtn-${chIdx}`);
+      if (state.channels[chIdx].solo) {
+        btn.classList.add('bg-primary', 'text-on-primary', 'shadow-md');
+      } else {
+        btn.classList.remove('bg-primary', 'text-on-primary', 'shadow-md');
+      }
+      sendIpc('set_channel_solo', { channel: chIdx, solo: state.channels[chIdx].solo });
+    }
+
+    function toggleChannelMute(chIdx) {
+      state.channels[chIdx].muted = !state.channels[chIdx].muted;
+      const btn = document.getElementById(`muteBtn-${chIdx}`);
+      if (state.channels[chIdx].muted) {
+        btn.classList.add('bg-error', 'text-white', 'shadow-md');
+      } else {
+        btn.classList.remove('bg-error', 'text-white', 'shadow-md');
+      }
+      sendIpc('set_channel_mute', { channel: chIdx, mute: state.channels[chIdx].muted });
+    }
+
+    function toggleChannelDsp(chIdx, checked) {
+      sendIpc('set_channel_dsp_mode', { channel: chIdx, individual: checked });
+    }
+
+    function setEqMode(mode) {
+      state.eqMode = mode;
+      const b10 = document.getElementById('mode10Btn');
+      const b20 = document.getElementById('mode20Btn');
+      if (mode === '10') {
+        b10.className = "px-3 py-1 rounded text-xs font-mono font-semibold transition-all bg-surface-container-high text-primary shadow-sm";
+        b20.className = "px-3 py-1 rounded text-xs font-mono transition-all text-on-surface-variant hover:text-on-surface";
+      } else {
+        b20.className = "px-3 py-1 rounded text-xs font-mono font-semibold transition-all bg-surface-container-high text-primary shadow-sm";
+        b10.className = "px-3 py-1 rounded text-xs font-mono transition-all text-on-surface-variant hover:text-on-surface";
+      }
+      renderSliders();
+      renderInteractiveNodes();
+      sendIpc('set_eq_mode', { mode: mode === '10' ? 'Bands10' : 'Bands20' });
+    }
+
+    function toggleEqBypass() {
+      state.eqBypassed = !state.eqBypassed;
+      const dot = document.getElementById('eqBypassDot');
+      const lbl = document.getElementById('eqBypassLabel');
+      const btn = document.getElementById('eqBypassBtn');
+      if (state.eqBypassed) {
+        dot.className = "w-2 h-2 rounded-full bg-outline";
+        lbl.textContent = "Bypassed";
+        btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-md bg-surface-container border border-outline/40 text-outline transition-all";
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-secondary shadow-[0_0_6px_rgba(16,185,129,0.8)] animate-pulse";
+        lbl.textContent = "EQ In";
+        btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-md bg-surface-container border border-secondary/50 text-secondary transition-all shadow-[0_0_8px_rgba(16,185,129,0.2)]";
+      }
+      sendIpc('set_eq_bypassed', { bypassed: state.eqBypassed });
+    }
+
+    function resetEqCurve() {
+      const bands = state.eqMode === '10' ? state.eqBands10 : state.eqBands20;
+      bands.forEach(b => b.gain = 0.0);
+      renderSliders();
+      renderInteractiveNodes();
+      document.getElementById('eqPresetSelect').value = 'flat';
+      sendIpc('reset_eq');
+    }
+
+    function onEqPresetChanged(preset) {
+      sendIpc('apply_eq_preset', { preset });
+      const presets = {
+        flat: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        bass: [6.5, 5.2, 3.1, 0.8, -0.5, -0.8, 0.0, 0.5, 0.2, 0.0],
+        vocal: [-2.0, -1.0, 0.0, 0.5, 1.8, 3.4, 3.8, 2.5, 1.5, 0.8],
+        loudness: [4.8, 3.5, 1.0, -1.2, -1.8, -1.5, 0.0, 1.6, 3.2, 4.5],
+        custom: [2.4, 3.8, 1.2, -1.5, -0.8, 0.0, 1.8, 3.2, 2.1, 4.0],
+      };
+      const vals = presets[preset];
+      if (vals && state.eqMode === '10') {
+        state.eqBands10.forEach((b, i) => b.gain = vals[i] || 0.0);
+      }
+      renderSliders();
+      renderInteractiveNodes();
+    }
+
+    function renderSliders() {
+      const rack = document.getElementById('sliderBankRack');
+      rack.innerHTML = '';
+      const bands = state.eqMode === '10' ? state.eqBands10 : state.eqBands20;
+
+      bands.forEach((band, idx) => {
+        const isSolo = state.soloBandIdx === idx;
+        const col = document.createElement('div');
+        col.className = 'flex-1 flex flex-col items-center justify-between bg-surface-container-low/80 hover:bg-surface-container-high/60 transition-colors p-2 rounded-lg select-none min-w-[54px]';
+        col.innerHTML = `
+          <span id="eqReadout-${idx}" class="font-mono text-xs font-semibold ${band.gain > 0 ? 'text-primary' : band.gain < 0 ? 'text-tertiary' : 'text-outline'}">
+            ${band.gain > 0 ? '+' : ''}${band.gain.toFixed(1)} dB
+          </span>
+          <span class="text-[9px] font-mono text-outline my-0.5">Q ${band.q.toFixed(2)}</span>
+          <div class="relative w-7 h-44 my-2 flex items-center justify-center">
+            <div class="absolute w-5 h-px bg-outline/40 z-10 top-1/2 -translate-y-1/2"></div>
+            <div class="absolute w-2 h-full bg-surface-container-lowest rounded-full overflow-hidden shadow-inner flex flex-col justify-end">
+              <div id="eqTrackFill-${idx}" class="w-full bg-primary/40 rounded-full" style="height: ${((band.gain + 12) / 24) * 100}%;"></div>
+            </div>
+            <input type="range" min="-12" max="12" step="0.1" value="${band.gain}" data-idx="${idx}" class="eq-band-input absolute w-44 h-7 opacity-0 cursor-pointer -rotate-90 z-20"/>
+            <div id="eqThumb-${idx}" class="absolute w-6 h-3 bg-surface-bright rounded border-t border-white/20 shadow-md flex items-center justify-center pointer-events-none transition-transform" style="bottom: calc(${((band.gain + 12) / 24) * 100}% - 6px);">
+              <div class="w-3 h-0.5 ${band.gain !== 0 ? 'bg-primary shadow-[0_0_6px_rgba(0,229,255,0.9)]' : 'bg-outline'}"></div>
+            </div>
+          </div>
+          <button data-solo="${idx}" class="eq-solo-btn px-2 py-0.5 rounded w-full text-center font-mono text-[9px] uppercase transition-all ${isSolo ? 'bg-secondary text-on-secondary font-bold shadow-sm' : 'bg-surface-container text-outline hover:text-on-surface'}">
+            Solo
+          </button>
+          <span class="font-mono text-xs text-on-surface font-bold mt-1.5">${band.freq}</span>
+        `;
+        rack.appendChild(col);
+      });
+
+      rack.querySelectorAll('.eq-band-input').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const idx = parseInt(e.target.dataset.idx, 10);
+          const val = parseFloat(e.target.value);
+          bands[idx].gain = val;
+          updateBandVisual(idx);
+          renderInteractiveNodes();
+          sendIpc('set_band_gain', { index: idx, gain_db: val });
+        });
+        input.addEventListener('dblclick', (e) => {
+          const idx = parseInt(e.target.dataset.idx, 10);
+          bands[idx].gain = 0.0;
+          e.target.value = 0.0;
+          updateBandVisual(idx);
+          renderInteractiveNodes();
+          sendIpc('set_band_gain', { index: idx, gain_db: 0.0 });
+        });
+      });
+
+      rack.querySelectorAll('.eq-solo-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(btn.dataset.solo, 10);
+          state.soloBandIdx = state.soloBandIdx === idx ? null : idx;
+          renderSliders();
+          sendIpc('set_band_solo', { index: state.soloBandIdx });
+        });
+      });
+    }
+
+    function updateBandVisual(idx) {
+      const bands = state.eqMode === '10' ? state.eqBands10 : state.eqBands20;
+      const band = bands[idx];
+      const readout = document.getElementById(`eqReadout-${idx}`);
+      const thumb = document.getElementById(`eqThumb-${idx}`);
+      const trackFill = document.getElementById(`eqTrackFill-${idx}`);
+      const pct = ((band.gain + 12) / 24) * 100;
+      if (readout) {
+        readout.textContent = `${band.gain > 0 ? '+' : ''}${band.gain.toFixed(1)} dB`;
+        readout.className = `font-mono text-xs font-semibold ${band.gain > 0 ? 'text-primary' : band.gain < 0 ? 'text-tertiary' : 'text-outline'}`;
+      }
+      if (thumb) thumb.style.bottom = `calc(${pct}% - 6px)`;
+      if (trackFill) trackFill.style.height = `${pct}%`;
+    }
+
+    function renderInteractiveNodes() {
+      const container = document.getElementById('canvasContainer');
+      const layer = document.getElementById('interactiveNodeLayer');
+      if (!container || !layer) return;
+      layer.innerHTML = '';
+      const rect = container.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      const bands = state.eqMode === '10' ? state.eqBands10 : state.eqBands20;
+
+      bands.forEach((band, idx) => {
+        const minLog = Math.log10(20);
+        const maxLog = Math.log10(20000);
+        const bandLog = Math.log10(band.hz);
+        const normX = (bandLog - minLog) / (maxLog - minLog);
+        const x = normX * (w - 60) + 30;
+        const normY = (band.gain + 12) / 24;
+        const y = h - (normY * (h - 60) + 30);
+
+        const node = document.createElement('div');
+        node.className = 'absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group cursor-grab active:cursor-grabbing';
+        node.style.left = `${x}px`;
+        node.style.top = `${y}px`;
+        node.innerHTML = `
+          <div class="relative w-6 h-6 rounded-full flex items-center justify-center bg-surface-container-high border border-primary/50 shadow-[0_0_8px_rgba(0,229,255,0.4)]">
+            <div class="w-2.5 h-2.5 rounded-full ${band.gain !== 0 ? 'bg-primary shadow-[0_0_8px_rgba(0,229,255,1)]' : 'bg-outline'}"></div>
+          </div>
+          <span class="opacity-0 group-hover:opacity-100 font-mono text-[9px] text-primary bg-surface-container-lowest/90 px-1 py-0.5 rounded shadow mt-1 whitespace-nowrap">
+            ${band.freq} (${band.gain > 0 ? '+' : ''}${band.gain.toFixed(1)}dB)
+          </span>
+        `;
+
+        node.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          const startY = e.clientY;
+          const startGain = band.gain;
+          function onMove(me) {
+            const dy = startY - me.clientY;
+            let newGain = startGain + (dy / (h * 0.4)) * 12;
+            newGain = Math.max(-12, Math.min(12, newGain));
+            band.gain = Math.round(newGain * 10) / 10;
+            const input = document.querySelector(`.eq-band-input[data-idx="${idx}"]`);
+            if (input) input.value = band.gain;
+            updateBandVisual(idx);
+            renderInteractiveNodes();
+            sendIpc('set_band_gain', { index: idx, gain_db: band.gain });
+          }
+          function onUp() {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+          }
+          window.addEventListener('mousemove', onMove);
+          window.addEventListener('mouseup', onUp);
+        });
+
+        layer.appendChild(node);
+      });
+    }
+
+    let dspCtx = null;
+    let canvasW = 800;
+    let canvasH = 320;
+    let liveFftData = new Float32Array(72);
+    let liveOscilloscope = new Float32Array(128);
+
+    function resizeCanvas() {
+      const canvas = document.getElementById('dspCanvas');
+      const container = document.getElementById('canvasContainer');
+      if (!canvas || !container) return;
+      const rect = container.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      dspCtx = canvas.getContext('2d');
+      dspCtx.resetTransform();
+      dspCtx.scale(dpr, dpr);
+      canvasW = rect.width;
+      canvasH = rect.height;
+    }
+
+    function drawDspCanvas() {
+      if (!dspCtx) {
+        requestAnimationFrame(drawDspCanvas);
+        return;
+      }
+      dspCtx.clearRect(0, 0, canvasW, canvasH);
+
+      if (!state.eqBypassed) {
+        // 1. FFT Energy Bars
+        const barCount = 72;
+        const barWidth = canvasW / barCount;
+        for (let i = 0; i < barCount; i++) {
+          const amp = liveFftData[i] || 0.1;
+          const barHeight = amp * (canvasH * 0.75);
+          const x = i * barWidth;
+          const y = canvasH - barHeight;
+
+          const grad = dspCtx.createLinearGradient(0, y, 0, canvasH);
+          grad.addColorStop(0, 'rgba(0, 229, 255, 0.45)');
+          grad.addColorStop(0.7, 'rgba(0, 229, 255, 0.12)');
+          grad.addColorStop(1, 'rgba(0, 229, 255, 0.01)');
+
+          dspCtx.fillStyle = grad;
+          dspCtx.fillRect(x + 1, y, barWidth - 2, barHeight);
+
+          dspCtx.fillStyle = 'rgba(195, 245, 255, 0.8)';
+          dspCtx.fillRect(x + 1, y, barWidth - 2, 1.5);
+        }
+
+        // 2. Oscilloscope / RMS Polyline
+        dspCtx.beginPath();
+        const oscLen = liveOscilloscope.length;
+        for (let j = 0; j < oscLen; j++) {
+          const ox = (j / (oscLen - 1)) * canvasW;
+          const oy = (canvasH * 0.5) + liveOscilloscope[j] * (canvasH * 0.35);
+          if (j === 0) dspCtx.moveTo(ox, oy);
+          else dspCtx.lineTo(ox, oy);
+        }
+        dspCtx.strokeStyle = 'rgba(16, 185, 129, 0.65)';
+        dspCtx.lineWidth = 1.5;
+        dspCtx.stroke();
+
+        // 3. Composite EQ Filter Curve
+        dspCtx.save();
+        dspCtx.beginPath();
+        const minLog = Math.log10(20);
+        const maxLog = Math.log10(20000);
+        const res = 120;
+        const curvePoints = [];
+        const bands = state.eqMode === '10' ? state.eqBands10 : state.eqBands20;
+
+        for (let c = 0; c <= res; c++) {
+          const px = (c / res) * canvasW;
+          const curLog = minLog + (c / res) * (maxLog - minLog);
+          const curHz = Math.pow(10, curLog);
+
+          let netGain = 0;
+          bands.forEach((b, bIdx) => {
+            if (state.soloBandIdx !== null && state.soloBandIdx !== bIdx) return;
+            const diffOct = Math.log2(curHz / b.hz);
+            const bandwidth = 1.0 / b.q;
+            const resp = Math.exp(-0.5 * Math.pow(diffOct / (bandwidth * 0.5), 2));
+            netGain += b.gain * resp;
+          });
+
+          const normY = (netGain + 12) / 24;
+          const py = canvasH - (normY * (canvasH - 60) + 30);
+          curvePoints.push({ x: px, y: py });
+        }
+
+        if (curvePoints.length > 0) {
+          dspCtx.moveTo(curvePoints[0].x, curvePoints[0].y);
+          for (let p = 1; p < curvePoints.length - 1; p++) {
+            const xc = (curvePoints[p].x + curvePoints[p + 1].x) / 2;
+            const yc = (curvePoints[p].y + curvePoints[p + 1].y) / 2;
+            dspCtx.quadraticCurveTo(curvePoints[p].x, curvePoints[p].y, xc, yc);
+          }
+          dspCtx.lineTo(curvePoints[curvePoints.length - 1].x, curvePoints[curvePoints.length - 1].y);
+
+          dspCtx.shadowColor = '#00E5FF';
+          dspCtx.shadowBlur = 10;
+          dspCtx.strokeStyle = '#00E5FF';
+          dspCtx.lineWidth = 2.5;
+          dspCtx.stroke();
+
+          dspCtx.lineTo(canvasW, canvasH);
+          dspCtx.lineTo(0, canvasH);
+          dspCtx.closePath();
+          const curveGrad = dspCtx.createLinearGradient(0, 0, 0, canvasH);
+          curveGrad.addColorStop(0, 'rgba(0, 229, 255, 0.22)');
+          curveGrad.addColorStop(0.6, 'rgba(0, 229, 255, 0.05)');
+          curveGrad.addColorStop(1, 'transparent');
+          dspCtx.fillStyle = curveGrad;
+          dspCtx.fill();
+        }
+        dspCtx.restore();
+      } else {
+        dspCtx.beginPath();
+        dspCtx.moveTo(0, canvasH * 0.5);
+        dspCtx.lineTo(canvasW, canvasH * 0.5);
+        dspCtx.strokeStyle = '#6B7280';
+        dspCtx.lineWidth = 1.5;
+        dspCtx.stroke();
+      }
+
+      requestAnimationFrame(drawDspCanvas);
+    }
+
+    function init32Bars() {
+      const container = document.getElementById('sumVisualizerBars');
+      if (!container) return;
+      container.innerHTML = '';
+      for (let i = 0; i < 32; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'w-full bg-secondary rounded-t-sm transition-all duration-75';
+        bar.style.height = `${Math.floor(20 + Math.random() * 60)}%`;
+        bar.id = `visBar-${i}`;
+        container.appendChild(bar);
+      }
+    }
+
+    function toggleFxSlot(slot) {
+      state.fxSlotEnabled[slot] = !state.fxSlotEnabled[slot];
+      const btn = document.getElementById(`${slot}PowerBtn`);
+      if (btn) {
+        if (state.fxSlotEnabled[slot]) {
+          btn.classList.add('bg-primary', 'text-on-primary');
+          btn.classList.remove('bg-surface-container', 'text-outline');
+        } else {
+          btn.classList.remove('bg-primary', 'text-on-primary');
+          btn.classList.add('bg-surface-container', 'text-outline');
+        }
+      }
+      sendIpc('toggle_fx_slot', { slot, enabled: state.fxSlotEnabled[slot] });
+    }
+
+    function toggleGlobalFxBypass() {
+      state.globalFxBypass = !state.globalFxBypass;
+      const txt = document.getElementById('fxGlobalBypassText');
+      if (state.globalFxBypass) {
+        txt.textContent = "FX BYPASSED";
+      } else {
+        txt.textContent = "BYPASS FX";
+      }
+      sendIpc('set_global_fx_bypass', { bypassed: state.globalFxBypass });
+    }
+
+    function onBassDriveChange(val) {
+      const num = parseFloat(val);
+      document.getElementById('bassDriveText').textContent = `+${num.toFixed(1)}`;
+      const arc = document.getElementById('bassArc');
+      if (arc) {
+        const offset = 210 - (num / 18) * 170;
+        arc.style.strokeDashoffset = offset;
+      }
+      sendIpc('set_bass_params', { drive_db: num });
+    }
+
+    function setBassCutoff(freq) {
+      document.getElementById('bassCutoffLabel').textContent = `${freq} Hz Linkwitz-Riley`;
+      document.querySelectorAll('.bass-freq-btn').forEach(btn => {
+        if (btn.dataset.freq == freq) {
+          btn.className = "bass-freq-btn py-1.5 rounded font-mono text-xs bg-tertiary text-on-primary font-bold shadow-sm";
+        } else {
+          btn.className = "bass-freq-btn py-1.5 rounded font-mono text-xs text-on-surface-variant hover:text-on-surface bg-surface-container-lowest border border-white/5";
+        }
+      });
+      sendIpc('set_bass_cutoff', { cutoff_hz: freq });
+    }
+
+    function onBassSatChange(val) {
+      document.getElementById('bassSatVal').textContent = `${val}%`;
+      sendIpc('set_bass_saturation', { pct: parseFloat(val) });
+    }
+
+    function onBassSubChange(val) {
+      document.getElementById('bassSubVal').textContent = `+${parseFloat(val).toFixed(1)} dB`;
+      sendIpc('set_bass_sub', { db: parseFloat(val) });
+    }
+
+    function toggleMonoCollapse() {
+      const dot = document.getElementById('monoCollapseDot');
+      const active = dot.classList.contains('bg-secondary');
+      if (active) {
+        dot.className = "w-2.5 h-2.5 rounded-full bg-outline";
+      } else {
+        dot.className = "w-2.5 h-2.5 rounded-full bg-secondary shadow-[0_0_6px_rgba(16,185,129,0.8)]";
+      }
+      sendIpc('set_bass_mono', { mono: !active });
+    }
+
+    function toggleSubGen() {
+      const lbl = document.getElementById('subGenLabel');
+      const active = lbl.textContent === 'ACTIVE';
+      if (active) {
+        lbl.textContent = 'BYPASS';
+        lbl.className = "text-[10px] font-mono text-outline";
+      } else {
+        lbl.textContent = 'ACTIVE';
+        lbl.className = "text-[10px] font-mono text-secondary font-bold";
+      }
+      sendIpc('set_bass_sub_gen', { active: !active });
+    }
+
+    function setTrebleShelf(freq) {
+      sendIpc('set_treble_freq', { freq });
+    }
+
+    function onTrebleBrillianceChange(val) {
+      const num = parseFloat(val);
+      document.getElementById('trebleBrillianceVal').textContent = `+${num.toFixed(1)} dB`;
+      sendIpc('set_treble_brilliance', { db: num });
+    }
+
+    function onTrebleAttackChange(val) {
+      const num = parseFloat(val);
+      document.getElementById('trebleAttackVal').textContent = `+${num.toFixed(1)} dB`;
+      sendIpc('set_treble_attack', { db: num });
+    }
+
+    function onTrebleTubeChange(val) {
+      document.getElementById('trebleTubeVal').textContent = `${val}%`;
+      sendIpc('set_treble_tube', { pct: parseFloat(val) });
+    }
+
+    function onReverbWetChange(val) {
+      document.getElementById('reverbWetVal').textContent = `${val}%`;
+      sendIpc('set_reverb_wet', { wet: parseFloat(val) / 100.0 });
+    }
+
+    function onReverbDecayChange(val) {
+      document.getElementById('reverbDecayVal').textContent = `${parseFloat(val).toFixed(1)}s`;
+      sendIpc('set_reverb_decay', { secs: parseFloat(val) });
+    }
+
+    function onReverbPredelayChange(val) {
+      document.getElementById('reverbPredelayVal').textContent = `${val} ms`;
+      sendIpc('set_reverb_predelay', { ms: parseFloat(val) });
+    }
+
+    function onReverbDampChange(val) {
+      document.getElementById('reverbDampVal').textContent = `${val}%`;
+      sendIpc('set_reverb_damp', { damp: parseFloat(val) / 100.0 });
+    }
+
+    function onReverbWidthChange(val) {
+      document.getElementById('reverbWidthVal').textContent = `${val}%`;
+      sendIpc('set_reverb_width', { width: parseFloat(val) / 100.0 });
+    }
+
+    function renderPatchbay() {
+      const srcCol = document.getElementById('patchbaySources');
+      const outCol = document.getElementById('patchbayOutputs');
+      const grid = document.getElementById('matrixGridNodes');
+      if (!srcCol || !outCol || !grid) return;
+
+      srcCol.innerHTML = '';
+      outCol.innerHTML = '';
+      grid.innerHTML = '';
+
+      state.sources.forEach((s, sIdx) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-3 rounded-lg bg-surface-container border border-white/5';
+        item.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-6 rounded-full bg-secondary"></span>
+            <div>
+              <span class="text-xs font-bold text-on-surface block truncate max-w-[160px]">${s.name}</span>
+              <span class="text-[10px] font-mono text-outline">Src 0${sIdx + 1}</span>
+            </div>
+          </div>
+          <button onclick="toggleSourcePhase(${sIdx})" class="px-2 py-0.5 rounded bg-surface-container-lowest text-[10px] font-mono text-outline hover:text-primary border border-white/5">
+            Ø ${s.phase ? '180°' : '0°'}
+          </button>
+        `;
+        srcCol.appendChild(item);
+      });
+
+      state.channels.forEach((c, cIdx) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-3 rounded-lg bg-surface-container border border-white/5';
+        item.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-6 rounded-full ${cIdx === 0 ? 'bg-primary' : cIdx === 1 ? 'bg-secondary' : 'bg-tertiary'}"></span>
+            <div>
+              <span class="text-xs font-bold text-on-surface block truncate max-w-[160px]">${c.name}</span>
+              <span class="text-[10px] font-mono text-outline">Sink 0${cIdx + 1}</span>
+            </div>
+          </div>
+          <span class="font-mono text-xs text-primary font-bold">${c.gain > 0 ? '+' : ''}${c.gain.toFixed(1)} dB</span>
+        `;
+        outCol.appendChild(item);
+      });
+
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 3; c++) {
+          const connected = state.matrix[r][c];
+          const dot = document.createElement('button');
+          dot.className = `w-7 h-7 rounded-md border flex items-center justify-center transition-all ${
+            connected
+              ? 'bg-primary border-primary shadow-[0_0_8px_rgba(0,229,255,0.7)] text-on-primary font-bold'
+              : 'bg-surface-container border-white/10 text-outline hover:border-white/30'
+          }`;
+          dot.innerHTML = connected ? '●' : '○';
+          dot.onclick = () => {
+            state.matrix[r][c] = !state.matrix[r][c];
+            renderPatchbay();
+            sendIpc('set_matrix_crosspoint', { source: r, channel: c, connected: state.matrix[r][c] });
+          };
+          grid.appendChild(dot);
+        }
+      }
+
+      let activeCount = 0;
+      state.matrix.forEach(row => row.forEach(val => { if (val) activeCount++; }));
+      const countEl = document.getElementById('crosspointCount');
+      if (countEl) countEl.textContent = `${activeCount} Active`;
+    }
+
+    function toggleSourcePhase(sIdx) {
+      state.sources[sIdx].phase = !state.sources[sIdx].phase;
+      renderPatchbay();
+      sendIpc('set_source_phase', { source: sIdx, phase_inverted: state.sources[sIdx].phase });
+    }
+
+    function invertAllPhase() {
+      state.sources.forEach(s => s.phase = !s.phase);
+      renderPatchbay();
+      sendIpc('invert_all_phase');
+    }
+
+    function resetMatrixDefault() {
+      state.matrix = [
+        [true, true, true],
+        [true, true, false],
+        [false, true, true],
+        [false, false, true],
+      ];
+      renderPatchbay();
+      sendIpc('reset_matrix');
+    }
+
+    window.onAudioTelemetry = function(data) {
+      if (!data) return;
+
+      const peakL = data.master_peak_l;
+      const peakR = data.master_peak_r;
+      const maxPeak = Math.max(peakL, peakR);
+      const display = document.getElementById('masterPeakDisplay');
+      if (display) display.textContent = `${maxPeak.toFixed(1)} dBFS`;
+
+      if (data.spectrum_32) {
+        data.spectrum_32.forEach((val, i) => {
+          const bar = document.getElementById(`visBar-${i}`);
+          if (bar) bar.style.height = `${Math.max(6, Math.min(98, val * 100))}%`;
+        });
+      }
+
+      if (data.spectrum_72) {
+        for (let i = 0; i < data.spectrum_72.length; i++) {
+          liveFftData[i] = data.spectrum_72[i];
+        }
+      }
+      if (data.oscilloscope) {
+        for (let j = 0; j < data.oscilloscope.length; j++) {
+          liveOscilloscope[j] = data.oscilloscope[j];
+        }
+      }
+
+      const latEl = document.getElementById('footerLatencyText');
+      if (latEl) latEl.textContent = `${data.latency_ms.toFixed(2)} ms (${data.buffer_size} spls)`;
+      const dropEl = document.getElementById('footerUnderruns');
+      if (dropEl) dropEl.textContent = `${data.dropouts} dropouts`;
+    };
+
+    const canvasContainer = document.getElementById('canvasContainer');
+    if (canvasContainer) {
+      canvasContainer.addEventListener('mousemove', (e) => {
+        const rect = canvasContainer.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const normX = Math.max(0, Math.min(1, mx / rect.width));
+        const minLog = Math.log10(20);
+        const maxLog = Math.log10(20000);
+        const hz = Math.round(Math.pow(10, minLog + normX * (maxLog - minLog)));
+        const normY = Math.max(0, Math.min(1, 1 - (my / rect.height)));
+        const gain = ((normY * 24) - 12).toFixed(1);
+
+        const freqEl = document.getElementById('cursorFreqReadout');
+        const gainEl = document.getElementById('cursorGainReadout');
+        if (freqEl) freqEl.textContent = hz >= 1000 ? `${(hz / 1000).toFixed(2)} kHz` : `${hz} Hz`;
+        if (gainEl) gainEl.textContent = `${gain > 0 ? '+' : ''}${gain} dB`;
+      });
+    }
+
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      renderInteractiveNodes();
+    });
+
+    init32Bars();
+    renderPatchbay();
+    resizeCanvas();
+    renderSliders();
+    renderInteractiveNodes();
+    requestAnimationFrame(drawDspCanvas);
+
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (urlTab) {
+      setTimeout(() => switchTab(urlTab), 50);
+    }
+  </script>
+</body>
+</html>

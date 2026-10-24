@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "inverse-primary": "#006875", "secondary-fixed-dim": "#4edea3", "on-background": "#e2e2eb", "inverse-on-surface": "#2e3037", "inverse-surface": "#e2e2eb", "on-tertiary": "#472a00", "error": "#ffb4ab", "primary-fixed-dim": "#00daf3", "surface-bright": "#373940", "tertiary-fixed": "#ffddb8", "tertiary-fixed-dim": "#ffb95f", "surface-container-high": "#282a30", "secondary-container": "#00a572", "on-error": "#690005", "tertiary": "#ffe9d3", "surface-dim": "#111319", "outline-variant": "#3b494c", "background": "#111319", "on-primary-fixed": "#001f24", "on-secondary": "#003824", "surface": "#111319", "primary-container": "#00e5ff", "on-secondary-container": "#00311f", "on-primary": "#00363d", "on-secondary-fixed": "#002113", "error-container": "#93000a", "tertiary-container": "#ffc681", "surface-container-low": "#191b22", "on-secondary-fixed-variant": "#005236", "surface-container-lowest": "#0c0e14", "on-tertiary-fixed": "#2a1700", "on-error-container": "#ffdad6", "primary": "#c3f5ff", "surface-container-highest": "#33343b", "on-primary-container": "#00626e", "on-surface-variant": "#bac9cc", "outline": "#849396", "surface-variant": "#33343b", "surface-tint": "#00daf3", "on-primary-fixed-variant": "#004f58", "secondary": "#4edea3", "primary-fixed": "#9cf0ff", "on-tertiary-container": "#7e4e00", "secondary-fixed": "#6ffbbe", "on-tertiary-fixed-variant": "#653e00", "surface-container": "#1e1f26", "on-surface": "#e2e2eb" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "gutter-md": "0.75rem", "space-sm": "0.5rem", "gutter": "0.5rem", "margin": "0.75rem", "space-2xs": "0.125rem", "space-xs": "0.25rem", "margin-desktop": "1.25rem", "space-md": "0.75rem", "space-lg": "1rem", "gutter-lg": "1rem", "space-xl": "1.5rem" }, "fontFamily": { "mono-metric-lg": [ "JetBrains Mono" ], "label-caps": [ "Geist" ], "headline-lg": [ "Geist" ], "mono-metric-md": [ "JetBrains Mono" ], "body-sm": [ "Geist" ], "display-lg": [ "Geist" ], "body-lg": [ "Geist" ], "mono-metric-sm": [ "JetBrains Mono" ], "headline-sm": [ "Geist" ] }, "fontSize": { "mono-metric-lg": [ "18px", { "lineHeight": "24px", "letterSpacing": "-0.03em", "fontWeight": "600" } ], "label-caps": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" } ], "headline-lg": [ "24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" } ], "mono-metric-md": [ "12px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" } ], "body-sm": [ "12px", { "lineHeight": "16px", "fontWeight": "400" } ], "display-lg": [ "32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" } ], "body-lg": [ "14px", { "lineHeight": "20px", "fontWeight": "400" } ], "mono-metric-sm": [ "10px", { "lineHeight": "12px", "letterSpacing": "0.02em", "fontWeight": "500" } ], "headline-sm": [ "18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "500" } ] } } } };</script></head><body class="bg-surface font-body-lg text-on-surface min-h-screen selection:bg-primary selection:text-on-primary-fixed"><header class="fixed top-0 left-0 right-0 h-16 bg-surface-container-low/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.45)] z-50 px-margin-desktop flex items-center justify-between gap-gutter"><div class="flex items-center gap-gutter"><img alt="SonicForge Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XN6useak7AcQ9qFdNbb2UZCU8FEGEhMXmB9FVO-4deN2LgVrju2zQPM8wQHWx9vW2BDpdiMqoBP7KZ9C710EiMYQzwfu6Xp5Dzg2DwqgaYfaj9NDf2ORo6qx8JQbxwR1rHEQR5iTvANjByRluHs6xqoid91LyQ5ANGJLhcJjAK7e3qM_OqIrz-cEtZWqFoXbMt46WesVy_ZNl3zMw_s3hUPpGRDdqfKZ6cxs9PsYFDTsaclyQK8WgLaaw"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight leading-none">SonicForge DSP</span><span class="font-mono-metric-sm text-mono-metric-sm text-outline tracking-wider uppercase mt-space-2xs">Windows 11 Fluent Engine</span></div><div class="h-6 w-px bg-surface-container-highest mx-space-xs"></div><div class="hidden xl:flex items-center gap-space-xs px-space-sm py-space-2xs rounded bg-surface-container-lowest shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]"><span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_6px_rgba(78,222,163,0.8)]"></span><span class="font-mono-metric-sm text-mono-metric-sm text-on-surface-variant font-medium tracking-tight">WASAPI • 48 kHz • 24-bit • 64 spls (1.3ms)</span></div></div><div class="flex items-center gap-gutter"><div class="relative flex items-center bg-surface-container-lowest px-space-sm py-space-2xs rounded shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]"><span class="material-symbols-outlined text-[16px] text-primary-fixed-dim mr-space-xs">input</span><select class="bg-transparent font-mono-metric-sm text-mono-metric-sm text-on-surface outline-none cursor-pointer pr-space-md"><option class="bg-surface-container-high text-on-surface">Default Windows Loopback</option><option class="bg-surface-container-high text-on-surface">Virtual Cable In</option><option class="bg-surface-container-high text-on-surface">Microphone In</option></select></div><button class="flex items-center gap-space-2xs px-space-sm py-space-2xs rounded bg-surface-container text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[16px] text-primary">lock</span><span class="font-label-caps text-label-caps tracking-wider uppercase">DSP Sync</span></button><button class="flex items-center gap-space-2xs px-space-sm py-space-2xs rounded bg-surface-container hover:bg-error-container text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined text-[16px]">volume_off</span><span class="font-label-caps text-label-caps tracking-wider uppercase">Mute</span></button><div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-sm py-space-2xs rounded shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]"><span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Master</span><div class="flex items-center gap-space-2xs h-4 w-20 bg-surface-container-high rounded-DEFAULT p-space-2xs"><div class="flex-1 h-1.5 bg-secondary rounded-DEFAULT shadow-[0_0_4px_rgba(78,222,163,0.6)]"></div><div class="w-3 h-1.5 bg-tertiary-fixed-dim rounded-DEFAULT"></div><div class="w-1.5 h-1.5 bg-error rounded-DEFAULT opacity-30"></div></div><span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-semibold">-0.2 dB</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><aside class="fixed left-0 top-16 bottom-8 w-64 bg-surface-container-low shadow-[0_1px_8px_rgba(0,0,0,0.25)] z-40 flex flex-col justify-between py-space-md"><div class="flex flex-col gap-space-md"><div class="px-space-md flex items-center justify-between"><span class="font-label-caps text-label-caps text-outline tracking-wider uppercase">Workspaces</span><span class="font-mono-metric-sm text-mono-metric-sm text-primary-fixed-dim">V2.4</span></div><nav class="flex flex-col gap-space-2xs px-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-semibold shadow-[0_0_12px_rgba(0,229,255,0.25)]"><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="multi-track-matrix" href="#"><span class="material-symbols-outlined text-[18px]">grid_view</span><span class="font-body-sm text-body-sm">Multi-Track Matrix</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="precision-equalizer-&amp;-analyzer" href="#"><span class="material-symbols-outlined text-[18px]">equalizer</span><span class="font-body-sm text-body-sm">Precision Equalizer &amp; Analyzer</span></a><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm rounded transition-all bg-primary-container text-on-primary-container font-semibold shadow-[0_0_12px_rgba(0,229,255,0.25)]" data-path="dsp-fx-rack" href="#"><span class="material-symbols-outlined text-[18px]">developer_board</span><span class="font-body-sm text-body-sm">DSP FX Rack</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="audio-routing-map" href="#"><span class="material-symbols-outlined text-[18px]">alt_route</span><span class="font-body-sm text-body-sm">Audio Routing Map</span></a></nav></div><div class="px-space-md flex flex-col gap-space-xs"><div class="p-space-sm rounded bg-surface-container-lowest flex flex-col gap-space-2xs"><div class="flex justify-between items-center"><span class="font-label-caps text-label-caps text-outline uppercase">Clock Source</span><span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-medium">Internal</span></div><div class="flex justify-between items-center"><span class="font-label-caps text-label-caps text-outline uppercase">Jitter / Sync</span><span class="font-mono-metric-sm text-mono-metric-sm text-primary font-medium">&lt; 0.02 ps</span></div></div></div></aside><div class="pl-64"><main class="w-full min-h-[calc(100vh-6rem)] pt-16 pb-8 bg-surface px-margin-desktop"><div class="flex flex-col w-full gap-gutter-lg pb-space-xl">
+<!-- Top Command & Global Chain Routing Strip -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-md shadow-xl flex flex-col gap-space-md">
+<div class="flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(0,229,255,0.7)] animate-pulse"></span>
+<span class="font-label-caps text-label-caps uppercase text-outline">DSP FX Chain Architecture</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">Rack Slot Reorder &amp; Routing</span>
+</div>
+<div class="hidden md:flex items-center gap-space-2xs bg-surface-container-lowest px-space-sm py-space-xs rounded shadow-inner">
+<span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-semibold">SERIAL MODE</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline">• 64-bit Float DSP • Zero Aliasing</span>
+</div>
+</div>
+<!-- Chain Quick Actions & Bypass -->
+<div class="flex items-center gap-space-sm">
+<button class="flex items-center gap-space-xs px-space-md py-space-xs rounded bg-surface-container-high hover:bg-error-container text-on-surface hover:text-error transition-all shadow-sm" id="globalBypassBtn">
+<span class="material-symbols-outlined text-[16px] text-error">power_settings_new</span>
+<span class="font-label-caps text-label-caps tracking-wider uppercase">Bypass All FX</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-space-xs rounded bg-surface-container hover:bg-surface-container-highest text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+<span class="font-label-caps text-label-caps uppercase">Preset Manager</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-space-xs rounded bg-primary-container text-on-primary-container font-semibold shadow-[0_0_12px_rgba(0,229,255,0.25)]">
+<span class="material-symbols-outlined text-[16px]">add_box</span>
+<span class="font-label-caps text-label-caps uppercase">Insert Slot</span>
+</button>
+</div>
+</div>
+<!-- Signal Flow Pills (Interactive order) & Global Meters -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-gutter-md items-center pt-space-xs">
+<!-- Chain Order Modules -->
+<div class="xl:col-span-8 flex flex-wrap items-center gap-space-xs bg-surface-container-lowest p-space-xs rounded-lg">
+<span class="font-label-caps text-label-caps text-outline uppercase px-space-xs">Chain:</span>
+<div class="flex items-center gap-space-xs px-space-sm py-space-2xs rounded bg-surface-container-high text-on-surface shadow-sm cursor-grab active:cursor-grabbing hover:bg-surface-bright transition-all">
+<span class="material-symbols-outlined text-[14px] text-outline">drag_indicator</span>
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim"></span>
+<span class="font-mono-metric-sm text-mono-metric-sm">01. SubSynth</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline ml-space-2xs">L-R</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[16px]">arrow_forward</span>
+<div class="flex items-center gap-space-xs px-space-sm py-space-2xs rounded bg-surface-container-high text-on-surface shadow-sm cursor-grab active:cursor-grabbing hover:bg-surface-bright transition-all">
+<span class="material-symbols-outlined text-[14px] text-outline">drag_indicator</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+<span class="font-mono-metric-sm text-mono-metric-sm">02. SparkleEQ</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline ml-space-2xs">Air</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[16px]">arrow_forward</span>
+<div class="flex items-center gap-space-xs px-space-sm py-space-2xs rounded bg-surface-container-high text-on-surface shadow-sm cursor-grab active:cursor-grabbing hover:bg-surface-bright transition-all">
+<span class="material-symbols-outlined text-[14px] text-outline">drag_indicator</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span>
+<span class="font-mono-metric-sm text-mono-metric-sm">03. SpatialVerb</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline ml-space-2xs">Room</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[16px]">arrow_forward</span>
+<div class="flex items-center gap-space-xs px-space-sm py-space-2xs rounded bg-surface-container-high text-on-surface shadow-sm cursor-grab active:cursor-grabbing hover:bg-surface-bright transition-all">
+<span class="material-symbols-outlined text-[14px] text-outline">drag_indicator</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed-dim"></span>
+<span class="font-mono-metric-sm text-mono-metric-sm">04. Brickwall</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline ml-space-2xs">Safe</span>
+</div>
+</div>
+<!-- I/O Global Gain Stages -->
+<div class="xl:col-span-4 flex items-center justify-end gap-space-md bg-surface-container-lowest p-space-xs rounded-lg">
+<!-- In Meter -->
+<div class="flex items-center gap-space-xs">
+<div class="flex flex-col text-right">
+<span class="font-label-caps text-label-caps text-outline uppercase leading-none">In Pre</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-semibold leading-none mt-space-2xs">-3.4 dB</span>
+</div>
+<div class="flex flex-col gap-px w-2 h-7 bg-surface-container-high rounded p-px">
+<div class="w-full h-1 bg-secondary rounded-DEFAULT"></div>
+<div class="w-full h-1 bg-secondary rounded-DEFAULT"></div>
+<div class="w-full h-1 bg-secondary rounded-DEFAULT"></div>
+<div class="w-full h-1 bg-secondary rounded-DEFAULT"></div>
+<div class="w-full h-1 bg-tertiary-fixed-dim rounded-DEFAULT"></div>
+</div>
+</div>
+<div class="h-6 w-px bg-surface-container-highest"></div>
+<!-- Master DSP Trim -->
+<div class="flex items-center gap-space-xs">
+<span class="font-label-caps text-label-caps text-outline uppercase">DSP Drive</span>
+<div class="px-space-xs py-space-2xs rounded bg-surface-container-high font-mono-metric-sm text-mono-metric-sm text-primary">
+            +0.0 dB
+          </div>
+</div>
+<div class="h-6 w-px bg-surface-container-highest"></div>
+<!-- Out Meter -->
+<div class="flex items-center gap-space-xs">
+<div class="flex flex-col text-right">
+<span class="font-label-caps text-label-caps text-outline uppercase leading-none">Out Post</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-primary-container font-semibold leading-none mt-space-2xs">-0.1 dB</span>
+</div>
+<div class="flex flex-col gap-px w-2 h-7 bg-surface-container-high rounded p-px">
+<div class="w-full h-1 bg-secondary rounded-DEFAULT"></div>
+<div class="w-full h-1 bg-secondary rounded-DEFAULT"></div>
+<div class="w-full h-1 bg-secondary rounded-DEFAULT"></div>
+<div class="w-full h-1 bg-tertiary-fixed-dim rounded-DEFAULT"></div>
+<div class="w-full h-1 bg-primary-container rounded-DEFAULT"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RACK MODULE 1: Real Bass & Sub-Harmonic Synthesizer (Amber Functional Tone) -->
+<section class="w-full bg-surface-container-low rounded-xl shadow-xl overflow-hidden">
+<!-- Hardware Chassis Faceplate Header -->
+<div class="bg-surface-container-high px-space-md py-space-xs flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="px-space-xs py-space-2xs rounded bg-tertiary-container text-on-tertiary-container font-mono-metric-sm text-mono-metric-sm font-semibold tracking-wider">SLOT 01</span>
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-on-surface leading-none tracking-tight">Real Bass &amp; Sub-Harmonic Synthesizer</h2>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline mt-space-2xs">Dynamic Wavefolding • Psychoacoustic Low-End Exciter</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<div class="hidden sm:flex items-center gap-space-xs px-space-sm py-space-2xs rounded bg-surface-container-lowest">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim shadow-[0_0_6px_rgba(255,185,95,0.7)]"></span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-on-surface-variant">ANALOG OVERSAMPLE 4x</span>
+</div>
+<button class="rack-power-btn w-7 h-7 rounded bg-tertiary-container text-on-tertiary-container flex items-center justify-center transition-all shadow-sm" title="Module Power">
+<span class="material-symbols-outlined text-[16px]">power_settings_new</span>
+</button>
+</div>
+</div>
+<!-- Rack Chassis Surface -->
+<div class="p-space-lg bg-surface-container grid grid-cols-1 lg:grid-cols-12 gap-gutter-lg items-center">
+<!-- Big Brushed Rotary Knob: Sub-Bass Drive -->
+<div class="lg:col-span-4 flex flex-col items-center justify-center p-space-md rounded-lg bg-surface-container-lowest shadow-inner">
+<span class="font-label-caps text-label-caps text-tertiary-fixed-dim tracking-wider uppercase mb-space-xs">Sub-Bass Drive Stage</span>
+<!-- Physical Rotary Knob UI with amber arc -->
+<div class="relative w-32 h-32 flex items-center justify-center group cursor-ns-resize">
+<svg class="w-full h-full -rotate-90 transform" viewbox="0 0 100 100">
+<!-- Background Track -->
+<circle class="stroke-surface-container-highest" cx="50" cy="50" fill="none" r="42" stroke-dasharray="210" stroke-dashoffset="40" stroke-linecap="round" stroke-width="6"></circle>
+<!-- Active Amber Glow Track -->
+<circle class="stroke-tertiary-fixed-dim" cx="50" cy="50" fill="none" r="42" stroke-dasharray="210" stroke-dashoffset="95" stroke-linecap="round" stroke-width="6"></circle>
+</svg>
+<!-- Brushed Aluminum Cap -->
+<div class="absolute w-24 h-24 rounded-full bg-gradient-to-br from-surface-bright via-surface-container-high to-surface-container-lowest shadow-2xl flex flex-col items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-tertiary-fixed shadow-[0_0_8px_rgba(255,185,95,0.9)] mb-space-2xs"></div>
+<span class="font-mono-metric-lg text-mono-metric-lg text-on-surface font-semibold tracking-tight">+6.8</span>
+<span class="font-label-caps text-label-caps text-outline uppercase">dB Drive</span>
+</div>
+<!-- Detent tick needle -->
+<div class="absolute top-2 left-1/2 -translate-x-1/2 w-1 h-3 bg-tertiary-fixed rounded-full shadow-[0_0_6px_rgba(255,185,95,0.9)]"></div>
+</div>
+<div class="flex items-center justify-between w-full mt-space-sm px-space-md">
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline">0 dB</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-tertiary-fixed-dim font-medium">+18 dB MAX</span>
+</div>
+</div>
+<!-- Center Controls: Cutoff Frequency Selector & Saturation Dial -->
+<div class="lg:col-span-5 flex flex-col justify-between gap-space-md h-full py-space-xs">
+<!-- Cutoff Stepped Selector -->
+<div class="flex flex-col gap-space-xs bg-surface-container-low p-space-sm rounded-lg shadow-sm">
+<div class="flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-outline uppercase">Low-Cutoff Band Crossover</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-tertiary-fixed font-semibold">24 dB/Oct Linkwitz-Riley</span>
+</div>
+<div class="grid grid-cols-3 gap-space-xs bg-surface-container-lowest p-space-2xs rounded">
+<button class="py-space-xs rounded font-mono-metric-md text-mono-metric-md transition-all text-on-surface-variant hover:text-on-surface bg-surface-container hover:bg-surface-container-high">
+              60 Hz
+            </button>
+<button class="py-space-xs rounded font-mono-metric-md text-mono-metric-md transition-all bg-tertiary-container text-on-tertiary-container font-semibold shadow-sm">
+              80 Hz
+            </button>
+<button class="py-space-xs rounded font-mono-metric-md text-mono-metric-md transition-all text-on-surface-variant hover:text-on-surface bg-surface-container hover:bg-surface-container-high">
+              100 Hz
+            </button>
+</div>
+</div>
+<!-- Harmonic Saturation Mix Dial & Sub-Octave Slider -->
+<div class="grid grid-cols-2 gap-space-md">
+<!-- Saturation Knob Minimal -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col items-center justify-center">
+<span class="font-label-caps text-label-caps text-outline uppercase mb-space-2xs">Harmonic Saturation</span>
+<div class="relative w-16 h-16 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90 transform" viewbox="0 0 60 60">
+<circle class="stroke-surface-container-highest" cx="30" cy="30" fill="none" r="24" stroke-dasharray="140" stroke-dashoffset="25" stroke-width="4"></circle>
+<circle class="stroke-tertiary-fixed-dim" cx="30" cy="30" fill="none" r="24" stroke-dasharray="140" stroke-dashoffset="60" stroke-width="4"></circle>
+</svg>
+<div class="absolute inset-2 rounded-full bg-surface-container-high flex items-center justify-center shadow">
+<span class="font-mono-metric-md text-mono-metric-md text-on-surface font-semibold">45%</span>
+</div>
+</div>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline mt-space-2xs">Odd + Even Mix</span>
+</div>
+<!-- Sub-Octave Output Level -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col justify-between">
+<div class="flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-outline uppercase">Sub-Octave</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-tertiary-fixed font-semibold">+4.5 dB</span>
+</div>
+<div class="flex flex-col gap-space-2xs my-auto">
+<input class="w-full accent-tertiary-fixed-dim cursor-pointer bg-surface-container-highest rounded h-1.5" max="12" min="0" step="0.5" type="range" value="4.5"/>
+<div class="flex justify-between font-mono-metric-sm text-mono-metric-sm text-outline">
+<span>0 dB</span>
+<span>+6 dB</span>
+<span>+12 dB</span>
+</div>
+</div>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline">f/2 Phase-Aligned</span>
+</div>
+</div>
+</div>
+<!-- Right Visualizer & Toggles -->
+<div class="lg:col-span-3 flex flex-col justify-between h-full bg-surface-container-lowest p-space-md rounded-lg shadow-inner gap-space-md">
+<div>
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-label-caps text-label-caps text-outline uppercase">Phase Coherence</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-medium">98.2%</span>
+</div>
+<!-- Low End Mono Oscilloscope Graphic -->
+<div class="h-20 w-full bg-surface-dim rounded flex items-center justify-center p-space-2xs overflow-hidden">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 160 60">
+<path class="stroke-tertiary-fixed-dim/40" d="M 0 30 Q 20 5, 40 30 T 80 30 T 120 30 T 160 30" fill="none" stroke-width="1.5"></path>
+<path class="stroke-tertiary-fixed" d="M 0 30 Q 40 50, 80 30 T 160 30" fill="none" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs">
+<!-- Low End Mono Collapse Toggle -->
+<button class="w-full flex items-center justify-between p-space-sm rounded bg-surface-container-high hover:bg-surface-bright text-on-surface transition-all">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed">call_merge</span>
+<span class="font-body-sm text-body-sm">Mono Collapse &lt;120Hz</span>
+</div>
+<span class="w-2.5 h-2.5 rounded-full bg-secondary shadow-[0_0_6px_rgba(78,222,163,0.8)]"></span>
+</button>
+<!-- Sub-harmonic Generator State Toggle -->
+<button class="w-full flex items-center justify-between p-space-sm rounded bg-surface-container-high hover:bg-surface-bright text-on-surface transition-all">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed">graphic_eq</span>
+<span class="font-body-sm text-body-sm">Sub-Octave Gen</span>
+</div>
+<span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-semibold uppercase">ACTIVE</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- RACK MODULE 2: Treble Sparkle & Dynamic Exciter (Electric Cyan Tone) -->
+<section class="w-full bg-surface-container-low rounded-xl shadow-xl overflow-hidden">
+<div class="bg-surface-container-high px-space-md py-space-xs flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="px-space-xs py-space-2xs rounded bg-primary-container text-on-primary-container font-mono-metric-sm text-mono-metric-sm font-semibold tracking-wider">SLOT 02</span>
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-on-surface leading-none tracking-tight">Treble Sparkle &amp; Dynamic Exciter</h2>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline mt-space-2xs">High-Shelf Phase Linearization • Triode Tube Harmonics</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<div class="hidden sm:flex items-center gap-space-xs px-space-sm py-space-2xs rounded bg-surface-container-lowest">
+<span class="w-2 h-2 rounded-full bg-primary-container shadow-[0_0_6px_rgba(0,229,255,0.7)]"></span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-on-surface-variant">AIR-SHELF SYNC</span>
+</div>
+<button class="rack-power-btn w-7 h-7 rounded bg-primary-container text-on-primary-container flex items-center justify-center transition-all shadow-sm" title="Module Power">
+<span class="material-symbols-outlined text-[16px]">power_settings_new</span>
+</button>
+</div>
+</div>
+<!-- Rack Controls Grid -->
+<div class="p-space-lg bg-surface-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter-lg items-stretch">
+<!-- High-Shelf Frequency Selector -->
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col justify-between shadow-sm">
+<div class="flex flex-col gap-space-2xs">
+<span class="font-label-caps text-label-caps text-outline uppercase">Corner Frequency</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Shelf Select</span>
+</div>
+<div class="flex flex-col gap-space-xs my-space-md">
+<label class="flex items-center justify-between p-space-xs px-space-sm rounded bg-surface-container cursor-pointer hover:bg-surface-container-high transition-colors">
+<span class="font-mono-metric-md text-mono-metric-md text-on-surface">8.0 kHz</span>
+<input class="accent-primary-container" name="shelf-freq" type="radio"/>
+</label>
+<label class="flex items-center justify-between p-space-xs px-space-sm rounded bg-primary-container text-on-primary-container font-semibold cursor-pointer shadow-sm">
+<span class="font-mono-metric-md text-mono-metric-md">10.0 kHz</span>
+<input checked="" class="accent-on-primary-container" name="shelf-freq" type="radio"/>
+</label>
+<label class="flex items-center justify-between p-space-xs px-space-sm rounded bg-surface-container cursor-pointer hover:bg-surface-container-high transition-colors">
+<span class="font-mono-metric-md text-mono-metric-md text-on-surface">12.0 kHz</span>
+<input class="accent-primary-container" name="shelf-freq" type="radio"/>
+</label>
+</div>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline">Baxandall Slope Response</span>
+</div>
+<!-- Air Band Brilliance Knob -->
+<div class="bg-surface-container-lowest p-space-md rounded-lg flex flex-col items-center justify-between shadow-inner">
+<span class="font-label-caps text-label-caps text-primary-fixed-dim uppercase tracking-wider">Air Band Brilliance</span>
+<div class="relative w-24 h-24 flex items-center justify-center my-space-xs">
+<svg class="w-full h-full -rotate-90 transform" viewbox="0 0 80 80">
+<circle class="stroke-surface-container-highest" cx="40" cy="40" fill="none" r="32" stroke-dasharray="160" stroke-dashoffset="30" stroke-width="5"></circle>
+<circle class="stroke-primary-container" cx="40" cy="40" fill="none" r="32" stroke-dasharray="160" stroke-dashoffset="70" stroke-width="5"></circle>
+</svg>
+<div class="absolute inset-2 rounded-full bg-surface-container-high flex flex-col items-center justify-center shadow-lg">
+<span class="font-mono-metric-lg text-mono-metric-lg text-primary-container font-semibold">+4.2</span>
+<span class="font-label-caps text-label-caps text-outline uppercase">dB Boost</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full px-space-xs">
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline">0 dB</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline">+12 dB</span>
+</div>
+</div>
+<!-- Transient Crispness Precision Fader -->
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col justify-between shadow-sm">
+<div class="flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-outline uppercase">Transient Attack</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-primary-container font-semibold">+2.8 dB</span>
+</div>
+<!-- Vertical Studio Fader Well -->
+<div class="relative h-28 w-full flex items-center justify-center my-space-2xs">
+<!-- Central Recessed Slot -->
+<div class="w-2 h-full bg-surface-container-lowest rounded-full relative flex items-center justify-center">
+<!-- Unity 0 dB notch -->
+<div class="absolute top-1/2 w-4 h-0.5 bg-outline-variant -translate-y-1/2"></div>
+<!-- Fader Cap Handle -->
+<div class="absolute top-1/4 w-12 h-6 bg-surface-container-highest rounded flex items-center justify-center shadow-md cursor-ns-resize">
+<div class="w-6 h-0.5 bg-primary-container shadow-[0_0_6px_rgba(0,229,255,0.8)]"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between font-mono-metric-sm text-mono-metric-sm text-outline">
+<span>Soft</span>
+<span>Fast Edge</span>
+</div>
+</div>
+<!-- Tube Warmth Dial & High Harmonic FFT -->
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col justify-between shadow-sm">
+<div class="flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-outline uppercase">Tube Warmth</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-tertiary-fixed font-semibold">68% DRIVE</span>
+</div>
+<!-- Mini Spectrum Viewport -->
+<div class="h-16 w-full bg-surface-container-lowest rounded p-space-xs flex items-end gap-1">
+<div class="w-1.5 bg-primary/40 h-2 rounded-t-DEFAULT"></div>
+<div class="w-1.5 bg-primary/40 h-3 rounded-t-DEFAULT"></div>
+<div class="w-1.5 bg-primary/50 h-5 rounded-t-DEFAULT"></div>
+<div class="w-1.5 bg-primary/60 h-8 rounded-t-DEFAULT"></div>
+<div class="w-1.5 bg-primary-container h-12 rounded-t-DEFAULT shadow-[0_0_4px_rgba(0,229,255,0.6)]"></div>
+<div class="w-1.5 bg-primary-container h-14 rounded-t-DEFAULT shadow-[0_0_4px_rgba(0,229,255,0.6)]"></div>
+<div class="w-1.5 bg-primary-container h-10 rounded-t-DEFAULT"></div>
+<div class="w-1.5 bg-primary/80 h-7 rounded-t-DEFAULT"></div>
+<div class="w-1.5 bg-primary/60 h-5 rounded-t-DEFAULT"></div>
+</div>
+<!-- Horizontal Scrubber Knob replacement -->
+<div class="flex flex-col gap-space-2xs">
+<input class="w-full accent-primary-container cursor-pointer bg-surface-container-highest rounded h-1.5" max="100" min="0" type="range" value="68"/>
+<div class="flex justify-between font-mono-metric-sm text-mono-metric-sm text-outline">
+<span>Clean Clean</span>
+<span>Triode 12AX7</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- RACK MODULE 3: Real Reverb & Spatial Engine (Violet / Space Domain Accent) -->
+<section class="w-full bg-surface-container-low rounded-xl shadow-xl overflow-hidden">
+<div class="bg-surface-container-high px-space-md py-space-xs flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="px-space-xs py-space-2xs rounded bg-surface-variant text-on-surface-variant font-mono-metric-sm text-mono-metric-sm font-semibold tracking-wider">SLOT 03</span>
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-on-surface leading-none tracking-tight">Real Reverb &amp; Spatial Engine</h2>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline mt-space-2xs">Acoustic Impulse Modeling • Dual Early Reflection Matrix</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<div class="hidden sm:flex items-center gap-space-xs px-space-sm py-space-2xs rounded bg-surface-container-lowest">
+<span class="w-2 h-2 rounded-full bg-primary-fixed shadow-[0_0_6px_rgba(156,240,255,0.7)]"></span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-on-surface-variant">STEREO TRUE-3D</span>
+</div>
+<button class="rack-power-btn w-7 h-7 rounded bg-surface-variant text-on-surface flex items-center justify-center transition-all shadow-sm" title="Module Power">
+<span class="material-symbols-outlined text-[16px]">power_settings_new</span>
+</button>
+</div>
+</div>
+<!-- Reverb Surface Rack Layout -->
+<div class="p-space-lg bg-surface-container grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-gutter-md">
+<!-- Wet/Dry Rotary Blend (35%) -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col items-center justify-between shadow-sm">
+<span class="font-label-caps text-label-caps text-outline uppercase">Wet / Dry Blend</span>
+<div class="relative w-20 h-20 flex items-center justify-center my-space-xs">
+<svg class="w-full h-full -rotate-90 transform" viewbox="0 0 60 60">
+<circle class="stroke-surface-container-highest" cx="30" cy="30" fill="none" r="23" stroke-dasharray="140" stroke-dashoffset="25" stroke-width="4"></circle>
+<circle class="stroke-primary" cx="30" cy="30" fill="none" r="23" stroke-dasharray="140" stroke-dashoffset="85" stroke-width="4"></circle>
+</svg>
+<div class="absolute inset-1.5 rounded-full bg-surface-container-high flex flex-col items-center justify-center">
+<span class="font-mono-metric-md text-mono-metric-md text-primary font-semibold">35%</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline leading-none">WET</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full px-space-2xs font-mono-metric-sm text-mono-metric-sm text-outline">
+<span>Dry</span>
+<span>Wet</span>
+</div>
+</div>
+<!-- Room Size Selector Fader -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col justify-between shadow-sm">
+<div class="flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-outline uppercase">Room Model</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-primary font-semibold">Hall</span>
+</div>
+<div class="flex flex-col gap-space-2xs my-space-xs">
+<button class="py-space-2xs text-left px-space-xs rounded font-mono-metric-sm text-mono-metric-sm text-outline hover:text-on-surface bg-surface-container hover:bg-surface-container-high">
+            Small Room
+          </button>
+<button class="py-space-2xs text-left px-space-xs rounded font-mono-metric-sm text-mono-metric-sm text-outline hover:text-on-surface bg-surface-container hover:bg-surface-container-high">
+            Studio Live
+          </button>
+<button class="py-space-2xs text-left px-space-xs rounded font-mono-metric-sm text-mono-metric-sm bg-primary-container text-on-primary-container font-semibold shadow-sm">
+            Concert Hall
+          </button>
+<button class="py-space-2xs text-left px-space-xs rounded font-mono-metric-sm text-mono-metric-sm text-outline hover:text-on-surface bg-surface-container hover:bg-surface-container-high">
+            Cathedral 4.8s
+          </button>
+</div>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline">Diffuse Geometry</span>
+</div>
+<!-- Decay Time (2.4s) -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col items-center justify-between shadow-sm">
+<span class="font-label-caps text-label-caps text-outline uppercase">Decay (RT60)</span>
+<div class="relative w-20 h-20 flex items-center justify-center my-space-xs">
+<svg class="w-full h-full -rotate-90 transform" viewbox="0 0 60 60">
+<circle class="stroke-surface-container-highest" cx="30" cy="30" fill="none" r="23" stroke-dasharray="140" stroke-dashoffset="25" stroke-width="4"></circle>
+<circle class="stroke-primary" cx="30" cy="30" fill="none" r="23" stroke-dasharray="140" stroke-dashoffset="65" stroke-width="4"></circle>
+</svg>
+<div class="absolute inset-1.5 rounded-full bg-surface-container-high flex flex-col items-center justify-center">
+<span class="font-mono-metric-md text-mono-metric-md text-primary font-semibold">2.4</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline leading-none">sec</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full px-space-2xs font-mono-metric-sm text-mono-metric-sm text-outline">
+<span>0.2s</span>
+<span>10.0s</span>
+</div>
+</div>
+<!-- Pre-delay (18ms) -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col items-center justify-between shadow-sm">
+<span class="font-label-caps text-label-caps text-outline uppercase">Pre-Delay</span>
+<div class="relative w-20 h-20 flex items-center justify-center my-space-xs">
+<svg class="w-full h-full -rotate-90 transform" viewbox="0 0 60 60">
+<circle class="stroke-surface-container-highest" cx="30" cy="30" fill="none" r="23" stroke-dasharray="140" stroke-dashoffset="25" stroke-width="4"></circle>
+<circle class="stroke-primary" cx="30" cy="30" fill="none" r="23" stroke-dasharray="140" stroke-dashoffset="105" stroke-width="4"></circle>
+</svg>
+<div class="absolute inset-1.5 rounded-full bg-surface-container-high flex flex-col items-center justify-center">
+<span class="font-mono-metric-md text-mono-metric-md text-primary font-semibold">18</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline leading-none">ms</span>
+</div>
+</div>
+<div class="flex items-center justify-between w-full px-space-2xs font-mono-metric-sm text-mono-metric-sm text-outline">
+<span>0 ms</span>
+<span>120 ms</span>
+</div>
+</div>
+<!-- High-Frequency Damping Fader -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col justify-between shadow-sm">
+<div class="flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-outline uppercase">HF Damping</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-primary font-semibold">4.5 kHz</span>
+</div>
+<div class="relative h-24 w-full flex items-center justify-center my-space-2xs">
+<div class="w-1.5 h-full bg-surface-container-lowest rounded-full relative flex items-center justify-center">
+<div class="absolute top-1/3 w-10 h-5 bg-surface-container-highest rounded flex items-center justify-center shadow">
+<div class="w-5 h-0.5 bg-primary"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between font-mono-metric-sm text-mono-metric-sm text-outline">
+<span>Dark</span>
+<span>Bright</span>
+</div>
+</div>
+<!-- Stereo Width Expansion (0% to 200%) -->
+<div class="bg-surface-container-lowest p-space-sm rounded-lg flex flex-col justify-between shadow-inner">
+<div class="flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-outline uppercase">Spatial Width</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-semibold">142%</span>
+</div>
+<!-- Goniometer Radar Vector Graphic -->
+<div class="h-20 w-full bg-surface-dim rounded flex items-center justify-center p-space-2xs relative overflow-hidden">
+<div class="absolute w-12 h-12 rounded-full border border-surface-container-highest"></div>
+<div class="absolute w-6 h-6 rounded-full border border-surface-container-highest"></div>
+<!-- Lissajous Cloud Plot -->
+<svg class="w-full h-full" viewbox="0 0 100 80">
+<line class="stroke-surface-container-highest" stroke-dasharray="2 2" stroke-width="1" x1="10" x2="90" y1="70" y2="10"></line>
+<line class="stroke-surface-container-highest" stroke-dasharray="2 2" stroke-width="1" x1="10" x2="90" y1="10" y2="70"></line>
+<path class="stroke-primary shadow-[0_0_6px_rgba(195,245,255,0.8)]" d="M 50 40 Q 65 20, 75 35 T 50 40 T 25 45 T 50 40" fill="none" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="flex flex-col gap-space-2xs">
+<input class="w-full accent-primary cursor-pointer bg-surface-container-highest rounded h-1.5" max="200" min="0" type="range" value="142"/>
+<div class="flex justify-between font-mono-metric-sm text-mono-metric-sm text-outline">
+<span>0% Mono</span>
+<span>100% Std</span>
+<span>200% Super</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- RACK MODULE 4: Studio Brickwall Peak Limiter & Clipper (Master Defense) -->
+<section class="w-full bg-surface-container-low rounded-xl shadow-xl overflow-hidden">
+<div class="bg-surface-container-high px-space-md py-space-xs flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="px-space-xs py-space-2xs rounded bg-secondary-container text-on-secondary-container font-mono-metric-sm text-mono-metric-sm font-semibold tracking-wider">SLOT 04</span>
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-on-surface leading-none tracking-tight">Studio Brickwall Peak Limiter &amp; Clipper</h2>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline mt-space-2xs">True-Peak Inter-Sample Detection • Linear-Phase ISP Guard</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<div class="hidden sm:flex items-center gap-space-xs px-space-sm py-space-2xs rounded bg-surface-container-lowest">
+<span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_6px_rgba(78,222,163,0.8)]"></span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-on-surface-variant">EBU R128 COMPLIANT</span>
+</div>
+<button class="rack-power-btn w-7 h-7 rounded bg-secondary-container text-on-secondary-container flex items-center justify-center transition-all shadow-sm" title="Module Power">
+<span class="material-symbols-outlined text-[16px]">power_settings_new</span>
+</button>
+</div>
+</div>
+<!-- Limiter Console Controls & Live GR Meter -->
+<div class="p-space-lg bg-surface-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-gutter-lg items-center">
+<!-- Threshold Control -->
+<div class="lg:col-span-3 bg-surface-container-low p-space-md rounded-lg flex flex-col justify-between shadow-sm">
+<div class="flex justify-between items-center mb-space-sm">
+<span class="font-label-caps text-label-caps text-outline uppercase">Limiter Threshold</span>
+<span class="font-mono-metric-md text-mono-metric-md text-secondary font-semibold">-0.1 dBTP</span>
+</div>
+<div class="relative w-full h-16 bg-surface-container-lowest rounded p-space-xs flex flex-col justify-center">
+<input class="w-full accent-secondary cursor-pointer bg-surface-container-highest rounded h-2" max="0" min="-18" step="0.1" type="range" value="-0.1"/>
+<div class="flex justify-between font-mono-metric-sm text-mono-metric-sm text-outline mt-space-xs">
+<span>-18.0</span>
+<span>-6.0</span>
+<span>-0.1 dBTP</span>
+</div>
+</div>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline mt-space-sm">True-Peak Auto Detection</span>
+</div>
+<!-- Ceiling & Lookahead -->
+<div class="lg:col-span-3 bg-surface-container-low p-space-md rounded-lg flex flex-col justify-between shadow-sm">
+<!-- Ceiling Control -->
+<div class="flex justify-between items-center mb-space-xs">
+<span class="font-label-caps text-label-caps text-outline uppercase">Output Ceiling</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-on-surface font-semibold">-0.20 dBFS</span>
+</div>
+<input class="w-full accent-on-surface cursor-pointer bg-surface-container-highest rounded h-1.5 mb-space-md" max="0" min="-3" step="0.05" type="range" value="-0.2"/>
+<!-- Lookahead selector -->
+<div class="flex justify-between items-center mb-space-xs">
+<span class="font-label-caps text-label-caps text-outline uppercase">Lookahead Buffer</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-semibold">1.5 ms</span>
+</div>
+<div class="grid grid-cols-3 gap-space-2xs bg-surface-container-lowest p-space-2xs rounded">
+<button class="py-space-2xs rounded font-mono-metric-sm text-mono-metric-sm text-outline hover:text-on-surface bg-surface-container">0.5ms</button>
+<button class="py-space-2xs rounded font-mono-metric-sm text-mono-metric-sm bg-secondary-container text-on-secondary-container font-semibold">1.5ms</button>
+<button class="py-space-2xs rounded font-mono-metric-sm text-mono-metric-sm text-outline hover:text-on-surface bg-surface-container">3.0ms</button>
+</div>
+</div>
+<!-- Soft-Clip Curve Selector -->
+<div class="lg:col-span-3 bg-surface-container-low p-space-md rounded-lg flex flex-col justify-between shadow-sm">
+<div class="flex justify-between items-center mb-space-sm">
+<span class="font-label-caps text-label-caps text-outline uppercase">Soft-Clip Curve</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-tertiary-fixed font-semibold">Tanh Knee</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<label class="flex items-center justify-between p-space-xs px-space-sm rounded bg-surface-container cursor-pointer hover:bg-surface-bright transition-colors">
+<span class="font-body-sm text-body-sm text-on-surface">Hard Brickwall</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline">Inf:1</span>
+</label>
+<label class="flex items-center justify-between p-space-xs px-space-sm rounded bg-surface-container-high cursor-pointer shadow-sm">
+<span class="font-body-sm text-body-sm text-secondary font-semibold">Hyperbolic Tanh</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-secondary">Knee: 2.5</span>
+</label>
+<label class="flex items-center justify-between p-space-xs px-space-sm rounded bg-surface-container cursor-pointer hover:bg-surface-bright transition-colors">
+<span class="font-body-sm text-body-sm text-on-surface">Tape Saturation</span>
+<span class="font-mono-metric-sm text-mono-metric-sm text-outline">Round</span>
+</label>
+</div>
+</div>
+<!-- Gain Reduction Meter Column (-6 dB LED Bar) -->
+<div class="lg:col-span-3 bg-surface-container-lowest p-space-md rounded-lg flex flex-col justify-between shadow-inner">
+<div class="flex justify-between items-center mb-space-xs">
+<span class="font-label-caps text-label-caps text-outline uppercase">Gain Reduction</span>
+<span class="font-mono-metric-md text-mono-metric-md text-error font-semibold">-2.4 dB</span>
+</div>
+<!-- High-Precision Horizontal/Vertical LED Ladder -->
+<div class="bg-surface-dim p-space-xs rounded flex flex-col gap-space-xs">
+<!-- Scale ticks -->
+<div class="flex justify-between font-mono-metric-sm text-mono-metric-sm text-outline px-1">
+<span>0</span>
+<span>-1</span>
+<span>-2</span>
+<span>-3</span>
+<span>-4</span>
+<span>-6 dB</span>
+</div>
+<!-- Multi-segment reduction bar (illuminates from right to left or left to right) -->
+<div class="h-6 w-full bg-surface-container-high rounded p-space-2xs flex gap-px">
+<div class="flex-1 bg-secondary rounded-DEFAULT"></div>
+<div class="flex-1 bg-secondary rounded-DEFAULT"></div>
+<div class="flex-1 bg-secondary rounded-DEFAULT"></div>
+<div class="flex-1 bg-secondary rounded-DEFAULT"></div>
+<div class="flex-1 bg-secondary rounded-DEFAULT"></div>
+<div class="flex-1 bg-tertiary-fixed-dim rounded-DEFAULT shadow-[0_0_4px_rgba(255,185,95,0.8)]"></div>
+<div class="flex-1 bg-tertiary-fixed-dim rounded-DEFAULT shadow-[0_0_4px_rgba(255,185,95,0.8)]"></div>
+<div class="flex-1 bg-error rounded-DEFAULT shadow-[0_0_6px_rgba(255,180,171,0.9)]"></div>
+<div class="flex-1 bg-surface-container-highest rounded-DEFAULT opacity-40"></div>
+<div class="flex-1 bg-surface-container-highest rounded-DEFAULT opacity-40"></div>
+<div class="flex-1 bg-surface-container-highest rounded-DEFAULT opacity-40"></div>
+<div class="flex-1 bg-surface-container-highest rounded-DEFAULT opacity-40"></div>
+</div>
+</div>
+<div class="flex items-center justify-between mt-space-xs font-mono-metric-sm text-mono-metric-sm">
+<span class="text-outline">True Peak: <span class="text-on-surface">-0.10 dB</span></span>
+<span class="text-secondary font-semibold">0 CLIPS</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<script>
+  (function initRackInteractions() {
+    // Individual Module Power Toggle
+    const powerButtons = document.querySelectorAll('.rack-power-btn');
+    powerButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const section = btn.closest('section');
+        const isActive = !section.classList.contains('opacity-40');
+        if (isActive) {
+          section.classList.add('opacity-40', 'grayscale-[50%]');
+          btn.classList.add('bg-surface-container-highest', 'text-outline');
+        } else {
+          section.classList.remove('opacity-40', 'grayscale-[50%]');
+          btn.classList.remove('bg-surface-container-highest', 'text-outline');
+        }
+      });
+    });
+
+    // Global Bypass All Toggle
+    const globalBypassBtn = document.getElementById('globalBypassBtn');
+    let allBypassed = false;
+    if (globalBypassBtn) {
+      globalBypassBtn.addEventListener('click', () => {
+        allBypassed = !allBypassed;
+        const allSections = document.querySelectorAll('section');
+        allSections.forEach(sec => {
+          if (allBypassed) {
+            sec.classList.add('opacity-30', 'grayscale');
+          } else {
+            sec.classList.remove('opacity-30', 'grayscale', 'opacity-40', 'grayscale-[50%]');
+          }
+        });
+        if (allBypassed) {
+          globalBypassBtn.classList.add('bg-error-container', 'text-error');
+        } else {
+          globalBypassBtn.classList.remove('bg-error-container', 'text-error');
+        }
+      });
+    }
+  })();
+</script></main></div><footer class="fixed bottom-0 left-0 right-0 h-8 bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_-1px_6px_rgba(0,0,0,0.5)] z-50 px-margin-desktop flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-2xs"><span class="w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_4px_rgba(78,222,163,0.8)]"></span><span class="font-mono-metric-sm text-mono-metric-sm text-on-surface">Loopback: Active -&gt; Virtual Output Sink</span></div><div class="h-3 w-px bg-surface-container-highest"></div><div class="flex items-center gap-space-2xs"><span class="material-symbols-outlined text-[14px] text-primary">timer</span><span class="font-mono-metric-sm text-mono-metric-sm text-on-surface-variant">DSP Latency &amp; Underruns: <span class="text-secondary font-semibold">0 dropouts</span></span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs"><span class="font-label-caps text-label-caps text-outline uppercase">Engine Load</span><div class="w-16 h-1.5 bg-surface-container-high rounded-DEFAULT overflow-hidden"><div class="h-full w-[8%] bg-secondary shadow-[0_0_4px_rgba(78,222,163,0.8)]"></div></div><span class="font-mono-metric-sm text-mono-metric-sm text-secondary font-semibold">1.2%</span></div><div class="h-3 w-px bg-surface-container-highest"></div><span class="font-mono-metric-sm text-mono-metric-sm text-outline">SonicForge Core v2.4.12-x64</span></div></footer></body></html>
