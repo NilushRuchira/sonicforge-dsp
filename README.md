@@ -106,7 +106,7 @@ flowchart TD
 
 ```bash
 # Clone the repository
-git clone https://github.com/<username>/sonicforge-dsp.git
+git clone https://github.com/NilushRuchira/sonicforge-dsp.git
 cd sonicforge-dsp
 
 # Run native desktop application
